@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     // Get available API keys for the workspace
     const { data: apiKeys } = await supabase
       .from('workspace_api_keys')
-      .select('provider, api_key, is_default')
+      .select('provider, encrypted_key, is_default')
       .eq('workspace_id', workspaceId)
       .eq('is_active', true);
 
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
 
     switch (selectedProvider) {
       case 'openai':
-        const openai = new OpenAI({ apiKey: selectedKey.api_key });
+        const openai = new OpenAI({ apiKey: selectedKey.encrypted_key });
         const openaiResponse = await openai.chat.completions.create({
           model: 'gpt-4-turbo-preview',
           messages: [
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'anthropic':
-        const anthropic = new Anthropic({ apiKey: selectedKey.api_key });
+        const anthropic = new Anthropic({ apiKey: selectedKey.encrypted_key });
         const claudeResponse = await anthropic.messages.create({
           model: 'claude-3-opus-20240229',
           messages: [{ role: 'user', content: generationPrompt }],
@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'google':
-        const genAI = new GoogleGenerativeAI(selectedKey.api_key);
+        const genAI = new GoogleGenerativeAI(selectedKey.encrypted_key);
         const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
         const geminiResponse = await model.generateContent(generationPrompt);
         const geminiText = geminiResponse.response.text();
