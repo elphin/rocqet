@@ -6,9 +6,10 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CodeMirrorPromptEditor } from '@/components/codemirror-prompt-editor';
+import { GeneratePromptModal } from '@/components/generate-prompt-modal';
 import { 
   ArrowLeft, Save, Variable, Settings, Lock, Globe, FolderOpen, 
-  Hash, Plus, X, Info, ChevronDown, GitBranch, Loader2
+  Hash, Plus, X, Info, ChevronDown, GitBranch, Loader2, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -48,6 +49,7 @@ export function NewPromptClient({
   const [saving, setSaving] = useState(false);
   const [showFolderDropdown, setShowFolderDropdown] = useState(false);
   const [showTagsDropdown, setShowTagsDropdown] = useState(false);
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
   
   const router = useRouter();
   const supabase = createClient();
@@ -70,6 +72,32 @@ export function NewPromptClient({
     const regex = /\{\{([^}]+)\}\}/g;
     const matches = content.match(regex) || [];
     return [...new Set(matches.map(m => m.replace(/\{\{|\}\}/g, '').trim()))];
+  };
+
+  const handleGeneratedPrompt = (generatedData: {
+    title: string;
+    description: string;
+    content: string;
+    variables: string[];
+    tags: string[];
+  }) => {
+    // Fill in the form with generated data
+    setName(generatedData.title);
+    setDescription(generatedData.description);
+    setContent(generatedData.content);
+    setShortcode(generateShortcode(generatedData.title));
+    
+    // Extract and set variables
+    const extractedVars = extractVariables(generatedData.content);
+    setVariables(extractedVars);
+    
+    // Process tags (match with existing tags if possible)
+    const matchedTags = generatedData.tags
+      .map(tagName => availableTags.find(t => t.name.toLowerCase() === tagName.toLowerCase()))
+      .filter(Boolean) as any[];
+    setTags(matchedTags);
+    
+    toast.success('Prompt generated and form filled!');
   };
 
   const handleSave = async () => {
@@ -150,6 +178,13 @@ export function NewPromptClient({
           </div>
           
           <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setShowGenerateModal(true)}
+              variant="outline"
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Generate with AI
+            </Button>
             <Button
               onClick={handleSave}
               disabled={saving || !name.trim()}
@@ -346,6 +381,14 @@ Use {{variable_name}} to add variables that can be replaced at runtime."
           </div>
         </div>
       </div>
+
+      {/* Generate Prompt Modal */}
+      <GeneratePromptModal
+        isOpen={showGenerateModal}
+        onClose={() => setShowGenerateModal(false)}
+        onGenerated={handleGeneratedPrompt}
+        workspaceId={workspace.id}
+      />
     </div>
   );
 }
