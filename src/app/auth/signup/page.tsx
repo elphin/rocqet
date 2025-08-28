@@ -38,6 +38,8 @@ export default function SignUp() {
     }
 
     if (data?.user) {
+      // Store email in localStorage for the verify-email page
+      localStorage.setItem('pendingVerificationEmail', email);
       router.push('/auth/verify-email');
     }
   };

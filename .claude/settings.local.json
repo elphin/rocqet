@@ -85,7 +85,18 @@
       "Bash(del /f /q \"K:\\Cursor\\promptvolt\\node_modules\\.prisma\\client\\query_engine-windows.dll.node\")",
       "mcp__playwright__browser_console_messages",
       "Bash(git remote add:*)",
-      "Bash(npx drizzle-kit push:*)"
+      "Bash(npx drizzle-kit push:*)",
+      "Bash(npx supabase:*)",
+      "Bash(set JEST_WORKER_DISABLE_NODE_OPTIONS=1)",
+      "Bash(awk:*)",
+      "Bash(python:*)",
+      "Bash(npx prettier:*)",
+      "mcp__playwright__browser_select_option",
+      "mcp__ide__getDiagnostics",
+      "Bash(npm:*)",
+      "mcp__exa__crawling_exa",
+      "Bash(echo \"✅ Slug implementation complete!\n\nSummary of changes:\n1. Added ''slug'' column to chains table in schema\n2. Created and ran migration to add slugs to existing chains\n3. Updated chain-actions.ts to generate slugs when creating chains\n4. Updated chains-client.tsx to use slugs in navigation links\n5. Updated chain detail/edit pages to handle both slugs and IDs (backwards compatibility)\n6. Updated simple chain builder to include slugs when saving\n7. Updated v2 chain pages to handle slugs\n\nSlug format: ''chain-name-randomsuffix'' for new chains\nExisting chains: ''chain-name-idprefix'' format\")",
+      "Bash(psql:*)"
     ],
     "deny": []
   }

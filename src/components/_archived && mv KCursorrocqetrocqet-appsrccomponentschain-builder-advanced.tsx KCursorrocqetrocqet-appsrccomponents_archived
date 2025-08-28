@@ -1,0 +1,373 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { 
+  Plus, 
+  Trash2, 
+  GripVertical, 
+  Save, 
+  Play,
+  ChevronRight,
+  Settings,
+  X,
+  ArrowDown
+} from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { toast } from 'sonner';
+
+interface ChainStep {
+  id: string;
+  promptId: string;
+  name: string;
+  description?: string;
+  variableMapping: Record<string, any>;
+}
+
+interface ChainBuilderProps {
+  workspaceId: string;
+  workspaceSlug: string;
+  availablePrompts: Array<{
+    id: string;
+    name: string;
+    description: string | null;
+    variables: any;
+  }>;
+  mode: 'create' | 'edit';
+  existingChain?: any;
+}
+
+export function ChainBuilder({
+  workspaceId,
+  workspaceSlug,
+  availablePrompts,
+  mode,
+  existingChain
+}: ChainBuilderProps) {
+  const router = useRouter();
+  const [name, setName] = useState(existingChain?.name || '');
+  const [description, setDescription] = useState(existingChain?.description || '');
+  const [steps, setSteps] = useState<ChainStep[]>(
+    existingChain?.steps || []
+  );
+  const [saving, setSaving] = useState(false);
+  const [expandedStep, setExpandedStep] = useState<string | null>(null);
+
+  const addStep = () => {
+    const newStep: ChainStep = {
+      id: `step_${Date.now()}`,
+      promptId: '',
+      name: `Step ${steps.length + 1}`,
+      variableMapping: {}
+    };
+    setSteps([...steps, newStep]);
+    setExpandedStep(newStep.id);
+  };
+
+  const updateStep = (stepId: string, updates: Partial<ChainStep>) => {
+    setSteps(steps.map(step => 
+      step.id === stepId ? { ...step, ...updates } : step
+    ));
+  };
+
+  const removeStep = (stepId: string) => {
+    setSteps(steps.filter(step => step.id !== stepId));
+  };
+
+  const moveStep = (index: number, direction: 'up' | 'down') => {
+    const newSteps = [...steps];
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    if (newIndex >= 0 && newIndex < steps.length) {
+      [newSteps[index], newSteps[newIndex]] = [newSteps[newIndex], newSteps[index]];
+      setSteps(newSteps);
+    }
+  };
+
+  const saveChain = async () => {
+    if (!name.trim()) {
+      toast.error('Please enter a chain name');
+      return;
+    }
+
+    if (steps.length === 0) {
+      toast.error('Please add at least one step');
+      return;
+    }
+
+    if (steps.some(step => !step.promptId)) {
+      toast.error('Please select a prompt for each step');
+      return;
+    }
+
+    setSaving(true);
+    const supabase = createClient();
+
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('You must be logged in to create a chain');
+        return;
+      }
+
+      const chainData = {
+        workspace_id: workspaceId,
+        name: name.trim(),
+        description: description.trim() || null,
+        steps: steps,
+        is_active: true,
+        created_by: user.id
+      };
+
+      if (mode === 'edit' && existingChain?.id) {
+        const { error } = await supabase
+          .from('prompt_chains')
+          .update(chainData)
+          .eq('id', existingChain.id);
+
+        if (error) throw error;
+        toast.success('Chain updated successfully');
+      } else {
+        const { error } = await supabase
+          .from('prompt_chains')
+          .insert(chainData);
+
+        if (error) throw error;
+        toast.success('Chain created successfully');
+      }
+
+      router.push(`/${workspaceSlug}/chains`);
+    } catch (error: any) {
+      console.error('Error saving chain:', error);
+      toast.error(error.message || 'Failed to save chain');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          {mode === 'create' ? 'Create New Chain' : 'Edit Chain'}
+        </h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          Build sequential workflows by connecting multiple prompts
+        </p>
+      </div>
+
+      {/* Chain Details */}
+      <div className="bg-white dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-800 p-6 mb-6">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Chain Name
+            </label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g., Customer Support Workflow"
+              className="w-full"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Description (optional)
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe what this chain does..."
+              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100"
+              rows={3}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Steps */}
+      <div className="space-y-4 mb-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Chain Steps
+          </h2>
+          <Button 
+            onClick={addStep}
+            variant="outline"
+            size="sm"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Step
+          </Button>
+        </div>
+
+        {steps.length === 0 ? (
+          <div className="bg-gray-50 dark:bg-neutral-800/50 rounded-lg p-8 text-center">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              No steps added yet. Start by adding your first prompt step.
+            </p>
+            <Button onClick={addStep}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add First Step
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {steps.map((step, index) => {
+              const selectedPrompt = availablePrompts.find(p => p.id === step.promptId);
+              const isExpanded = expandedStep === step.id;
+              
+              return (
+                <div key={step.id}>
+                  <div className="bg-white dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-800">
+                    <div 
+                      className="p-4 flex items-center gap-3 cursor-pointer"
+                      onClick={() => setExpandedStep(isExpanded ? null : step.id)}
+                    >
+                      <GripVertical className="w-4 h-4 text-gray-400" />
+                      
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            Step {index + 1}
+                          </span>
+                          {selectedPrompt && (
+                            <>
+                              <ChevronRight className="w-3 h-3 text-gray-400" />
+                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {selectedPrompt.name}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {index > 0 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              moveStep(index, 'up');
+                            }}
+                          >
+                            ↑
+                          </Button>
+                        )}
+                        {index < steps.length - 1 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              moveStep(index, 'down');
+                            }}
+                          >
+                            ↓
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeStep(step.id);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="px-4 pb-4 border-t border-gray-200 dark:border-neutral-800 pt-4">
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              Select Prompt
+                            </label>
+                            <select
+                              value={step.promptId}
+                              onChange={(e) => updateStep(step.id, { promptId: e.target.value })}
+                              className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-neutral-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100"
+                            >
+                              <option value="">Choose a prompt...</option>
+                              {availablePrompts.map(prompt => (
+                                <option key={prompt.id} value={prompt.id}>
+                                  {prompt.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {selectedPrompt && selectedPrompt.variables && (
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Variable Mapping
+                              </label>
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                Map variables from previous steps or set static values
+                              </div>
+                              {Object.keys(selectedPrompt.variables).map(varName => (
+                                <div key={varName} className="flex items-center gap-2 mb-2">
+                                  <span className="text-sm text-gray-600 dark:text-gray-400 w-32">
+                                    {varName}:
+                                  </span>
+                                  <Input
+                                    placeholder={`e.g., {{step1.output}} or static value`}
+                                    value={step.variableMapping[varName] || ''}
+                                    onChange={(e) => updateStep(step.id, {
+                                      variableMapping: {
+                                        ...step.variableMapping,
+                                        [varName]: e.target.value
+                                      }
+                                    })}
+                                    className="flex-1 text-sm"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {index < steps.length - 1 && (
+                    <div className="flex justify-center py-2">
+                      <ArrowDown className="w-4 h-4 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-3">
+        <Button
+          onClick={saveChain}
+          disabled={saving}
+        >
+          <Save className="w-4 h-4 mr-2" />
+          {saving ? 'Saving...' : 'Save Chain'}
+        </Button>
+        
+        <Button
+          variant="outline"
+          onClick={() => router.push(`/${workspaceSlug}/chains`)}
+        >
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+}

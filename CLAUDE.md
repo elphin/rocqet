@@ -1,5 +1,17 @@
 # 🚀 ROCQET AI Development Instructions
 
+## 🔴 BELANGRIJKE REMINDER VOOR CLAUDE
+
+**SQL MIGRATIES**: Voer ALTIJD zelf SQL migraties uit via Drizzle:
+1. Maak schema files in `src/lib/db/schema/`
+2. Run `npm run db:generate` om migratie te genereren
+3. Run `npm run db:push` en selecteer optie 1 voor nieuwe tabellen
+4. VRAAG NOOIT aan de gebruiker om SQL te kopiëren naar Supabase Dashboard
+
+**De gebruiker heeft expliciet gevraagd dat jij dit zelf doet!**
+
+---
+
 ## ⚡ CRITICAL: Start Here Every Session!
 
 **This is the MASTER instruction file for building ROCQET - The GitHub for AI Prompts**
@@ -93,7 +105,8 @@ Step 3: Load ONLY what you need
 ### Tech Stack (LOCKED IN)
 ```typescript
 {
-  framework: "Next.js 14.2.21",     // NOT 15!
+  framework: "Next.js 15.5.0",      // Upgraded to v15!
+  react: "React 19.1.1",             // With React 19
   database: "Supabase PostgreSQL",  // With pgvector
   orm: "Drizzle",                   // NOT Prisma
   state: "TanStack Query",          // NOT Zustand
@@ -270,9 +283,8 @@ Track these to ensure we're building right:
 # Development
 npm run dev              # Start dev server
 
-# Database
-npm run db:push          # Push schema to Supabase
-npm run db:generate      # Generate types
+# Database Migrations (IMPORTANT - USE THIS METHOD!)
+node scripts/run-database-setup.mjs  # Run database migrations
 
 # Testing
 npm test                 # Run tests
@@ -280,6 +292,52 @@ npm run type-check       # Check types
 
 # Deployment
 vercel --prod           # Deploy to production
+```
+
+---
+
+## 🗄️ Database Migration Instructions (CRITICAL!)
+
+### ✅ WORKING METHOD for Database Migrations:
+
+1. **Create safe SQL files** in `scripts/`:
+   ```sql
+   -- Use these patterns:
+   CREATE TABLE IF NOT EXISTS ...
+   DO $$ BEGIN IF NOT EXISTS ... END $$;
+   INSERT ... ON CONFLICT DO UPDATE ...
+   DROP POLICY IF EXISTS ... before CREATE POLICY
+   ```
+
+2. **Run migrations with**:
+   ```bash
+   node scripts/run-database-setup.mjs
+   ```
+
+3. **Required setup**:
+   - `.env.local` must have `DATABASE_URL`
+   - Install: `npm install pg dotenv`
+   - Migration file: `scripts/setup-tiers-safe.sql`
+
+### ❌ METHODS THAT DON'T WORK:
+- `npx supabase db push` - Needs Docker
+- `npx supabase migration` - Needs local setup
+- Direct Supabase CLI - Needs elevated privileges
+
+### 📝 Safe Migration Pattern Example:
+```sql
+-- Add column if not exists
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'workspaces' 
+    AND column_name = 'subscription_tier'
+  ) THEN
+    ALTER TABLE workspaces 
+    ADD COLUMN subscription_tier TEXT DEFAULT 'free';
+  END IF;
+END $$;
 ```
 
 ---

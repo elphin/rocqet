@@ -1,0 +1,898 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { 
+  Plus,
+  Trash2,
+  GripVertical,
+  Save,
+  Play,
+  Settings,
+  X,
+  ArrowDown,
+  GitBranch,
+  Database,
+  Globe,
+  Code,
+  Users,
+  Webhook,
+  Clock,
+  Layers,
+  ChevronRight,
+  ChevronDown,
+  AlertCircle,
+  Info,
+  Copy,
+  RefreshCw,
+  Zap,
+  FileJson,
+  Filter,
+  Hash,
+  Type,
+  ToggleLeft,
+  ArrowRight,
+  GitMerge,
+  Repeat,
+  Search,
+  Shield,
+  Link
+} from 'lucide-react';
+import {
+  ChainStep,
+  StepType,
+  ConditionalConfig,
+  SwitchConfig,
+  LoopConfig,
+  ApiCallConfig,
+  DatabaseQueryConfig,
+  CodeExecutionConfig,
+  TransformationConfig,
+  HumanApprovalConfig,
+  WebhookConfig,
+  RetryConfig,
+  ErrorHandling,
+  validateStep
+} from '@/types/chain-types';
+import { toast } from '@/lib/toast-config';
+import { PromptSearchModal } from './prompt-search-modal';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { nanoid } from 'nanoid';
+
+const STEP_TYPES: Array<{
+  value: StepType;
+  label: string;
+  icon: React.ReactNode;
+  description: string;
+  category: string;
+}> = [
+  {
+    value: 'prompt',
+    label: 'Prompt',
+    icon: <FileJson className="w-4 h-4" />,
+    description: 'Execute an AI prompt',
+    category: 'Core'
+  },
+  {
+    value: 'condition',
+    label: 'If/Then/Else',
+    icon: <GitBranch className="w-4 h-4" />,
+    description: 'Conditional branching logic',
+    category: 'Logic'
+  },
+  {
+    value: 'switch',
+    label: 'Switch/Case',
+    icon: <GitMerge className="w-4 h-4" />,
+    description: 'Multi-way branching',
+    category: 'Logic'
+  },
+  {
+    value: 'loop',
+    label: 'Loop',
+    icon: <Repeat className="w-4 h-4" />,
+    description: 'Iterate over data',
+    category: 'Logic'
+  },
+  {
+    value: 'api_call',
+    label: 'API Call',
+    icon: <Globe className="w-4 h-4" />,
+    description: 'Make HTTP request',
+    category: 'External'
+  },
+  {
+    value: 'webhook',
+    label: 'Webhook Trigger',
+    icon: <Webhook className="w-4 h-4" />,
+    description: 'Receive webhook events',
+    category: 'External'
+  },
+  {
+    value: 'database',
+    label: 'Database Query',
+    icon: <Database className="w-4 h-4" />,
+    description: 'Query read-only data',
+    category: 'External'
+  },
+  {
+    value: 'transformation',
+    label: 'Transform Data',
+    icon: <Filter className="w-4 h-4" />,
+    description: 'Transform or filter data',
+    category: 'Data'
+  },
+  {
+    value: 'code',
+    label: 'Code Execution',
+    icon: <Code className="w-4 h-4" />,
+    description: 'Run JavaScript code',
+    category: 'Advanced'
+  },
+  {
+    value: 'human_approval',
+    label: 'Human Approval',
+    icon: <Users className="w-4 h-4" />,
+    description: 'Wait for manual approval',
+    category: 'Advanced'
+  }
+];
+
+const OPERATORS = [
+  { value: 'eq', label: 'Equals (==)' },
+  { value: 'ne', label: 'Not Equals (!=)' },
+  { value: 'gt', label: 'Greater Than (>)' },
+  { value: 'gte', label: 'Greater or Equal (>=)' },
+  { value: 'lt', label: 'Less Than (<)' },
+  { value: 'lte', label: 'Less or Equal (<=)' },
+  { value: 'contains', label: 'Contains' },
+  { value: 'not_contains', label: 'Not Contains' },
+  { value: 'starts_with', label: 'Starts With' },
+  { value: 'ends_with', label: 'Ends With' },
+  { value: 'regex', label: 'Regex Match' }
+];
+
+interface ChainBuilderAdvancedProps {
+  workspaceId: string;
+  workspaceSlug: string;
+  availablePrompts: Array<{
+    id: string;
+    name: string;
+    description: string | null;
+    variables: any;
+    content?: string;
+  }>;
+  mode: 'create' | 'edit';
+  existingChain?: any;
+}
+
+export function ChainBuilderAdvancedV2({
+  workspaceId,
+  workspaceSlug,
+  availablePrompts,
+  mode,
+  existingChain
+}: ChainBuilderAdvancedProps) {
+  const router = useRouter();
+  const [chainName, setChainName] = useState(existingChain?.name || '');
+  const [chainSlug, setChainSlug] = useState(existingChain?.slug || '');
+  const [description, setDescription] = useState(existingChain?.description || '');
+  const [steps, setSteps] = useState<ChainStep[]>(existingChain?.steps || []);
+  const [selectedStep, setSelectedStep] = useState<string | null>(null);
+  const [expandedSteps, setExpandedSteps] = useState<Set<string>>(new Set());
+  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [promptSearchOpen, setPromptSearchOpen] = useState(false);
+  const [promptSearchStepId, setPromptSearchStepId] = useState<string | null>(null);
+  const [webhookUrl, setWebhookUrl] = useState<string>('');
+  const [generatingWebhook, setGeneratingWebhook] = useState(false);
+
+  // Generate unique webhook URL for this chain
+  useEffect(() => {
+    if (mode === 'create' || !existingChain?.webhook_url) {
+      const webhookId = nanoid();
+      setWebhookUrl(`${window.location.origin}/api/webhooks/chains/${workspaceId}/${webhookId}`);
+    } else {
+      setWebhookUrl(existingChain.webhook_url);
+    }
+  }, [mode, workspaceId, existingChain]);
+
+  // Generate slug from name
+  useEffect(() => {
+    if (mode === 'create' && chainName) {
+      const generatedSlug = chainName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      setChainSlug(generatedSlug);
+    }
+  }, [chainName, mode]);
+
+  const addStep = (type: StepType = 'prompt') => {
+    const newStep: ChainStep = {
+      id: `step_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      name: `New ${type.replace('_', ' ')} step`,
+      description: '',
+      outputVariable: `step${steps.length + 1}Output`,
+      config: getDefaultConfigForType(type)
+    };
+    
+    setSteps([...steps, newStep]);
+    setSelectedStep(newStep.id);
+    setExpandedSteps(new Set([...expandedSteps, newStep.id]));
+  };
+
+  const getDefaultConfigForType = (type: StepType): any => {
+    switch (type) {
+      case 'condition':
+        return {
+          condition: {
+            type: 'comparison',
+            left: '',
+            operator: 'eq',
+            right: ''
+          },
+          thenBranch: [],
+          elseBranch: []
+        };
+      case 'switch':
+        return {
+          expression: '',
+          cases: [
+            { value: '', steps: [] }
+          ],
+          defaultCase: []
+        };
+      case 'loop':
+        return {
+          type: 'for-each',
+          source: '',
+          itemVariable: 'item',
+          indexVariable: 'index',
+          steps: []
+        };
+      case 'api_call':
+        return {
+          method: 'GET',
+          url: '',
+          headers: {},
+          body: null,
+          authentication: { type: 'none' }
+        };
+      case 'webhook':
+        return {
+          url: webhookUrl,
+          method: 'POST',
+          headers: {},
+          responseMapping: {}
+        };
+      case 'database':
+        return {
+          type: 'read-only',
+          query: '',
+          parameters: {},
+          datasource: 'analytics' // Separate read-only analytics database
+        };
+      case 'transformation':
+        return {
+          type: 'jq',
+          expression: '.',
+          input: ''
+        };
+      case 'code':
+        return {
+          language: 'javascript',
+          code: '// Your code here\nreturn {};',
+          sandbox: true,
+          timeout: 5000
+        };
+      case 'human_approval':
+        return {
+          approvers: [],
+          message: '',
+          timeout: 86400000, // 24 hours
+          actions: ['approve', 'reject']
+        };
+      default:
+        return {};
+    }
+  };
+
+  const updateStep = (stepId: string, updates: Partial<ChainStep>) => {
+    setSteps(steps.map(step => 
+      step.id === stepId ? { ...step, ...updates } : step
+    ));
+    
+    // Validate the updated step
+    const step = steps.find(s => s.id === stepId);
+    if (step) {
+      const updatedStep = { ...step, ...updates };
+      const validation = validateStep(updatedStep);
+      setValidationErrors(prev => ({
+        ...prev,
+        [stepId]: validation.errors
+      }));
+    }
+  };
+
+  const deleteStep = (stepId: string) => {
+    setSteps(steps.filter(step => step.id !== stepId));
+    if (selectedStep === stepId) {
+      setSelectedStep(null);
+    }
+  };
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const newSteps = Array.from(steps);
+    const [reorderedItem] = newSteps.splice(result.source.index, 1);
+    newSteps.splice(result.destination.index, 0, reorderedItem);
+
+    setSteps(newSteps);
+  };
+
+  const handlePromptSelect = (prompt: any) => {
+    if (promptSearchStepId) {
+      updateStep(promptSearchStepId, {
+        promptId: prompt.id,
+        promptName: prompt.name,
+        name: prompt.name,
+        description: prompt.description
+      });
+    }
+    setPromptSearchOpen(false);
+    setPromptSearchStepId(null);
+  };
+
+  const renderStepIcon = (type: StepType) => {
+    const stepType = STEP_TYPES.find(st => st.value === type);
+    return stepType?.icon || <Settings className="w-4 h-4" />;
+  };
+
+  const saveChain = async () => {
+    if (!chainName) {
+      toast.error('Please enter a chain name');
+      return;
+    }
+
+    setSaving(true);
+    const supabase = createClient();
+
+    try {
+      const chainData = {
+        name: chainName,
+        slug: chainSlug,
+        description,
+        steps,
+        workspace_id: workspaceId,
+        webhook_url: webhookUrl,
+        // Advanced features
+        error_handling: {
+          strategy: 'stop-on-error',
+          retry_policy: {
+            max_attempts: 3,
+            backoff_type: 'exponential'
+          }
+        },
+        notifications: {
+          on_success: false,
+          on_failure: true,
+          channels: []
+        }
+      };
+
+      if (mode === 'edit') {
+        const { error } = await supabase
+          .from('prompt_chains')
+          .update(chainData)
+          .eq('id', existingChain.id);
+
+        if (error) throw error;
+        toast.success('Chain updated successfully');
+      } else {
+        const { data, error } = await supabase
+          .from('prompt_chains')
+          .insert(chainData)
+          .select()
+          .single();
+
+        if (error) throw error;
+        toast.success('Chain created successfully');
+        router.push(`/${workspaceSlug}/chains/${data.slug}`);
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to save chain');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const renderStepContent = (step: ChainStep) => {
+    switch (step.type) {
+      case 'prompt':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Select Prompt</Label>
+              <div className="mt-2">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setPromptSearchStepId(step.id);
+                    setPromptSearchOpen(true);
+                  }}
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  {step.promptName || 'Click to search and select a prompt'}
+                </Button>
+              </div>
+            </div>
+            
+            <div>
+              <Label>Output Variable</Label>
+              <Input
+                placeholder="e.g., promptResult"
+                value={step.outputVariable || ''}
+                onChange={(e) => updateStep(step.id, { outputVariable: e.target.value })}
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Store the prompt output in this variable for use in later steps
+              </p>
+            </div>
+          </div>
+        );
+
+      case 'webhook':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Webhook URL</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={webhookUrl}
+                  readOnly
+                  className="bg-gray-50 dark:bg-neutral-800"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(webhookUrl);
+                    toast.success('Webhook URL copied');
+                  }}
+                >
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                This unique webhook URL will trigger this chain when called
+              </p>
+            </div>
+            
+            <div>
+              <Label>Response Mapping</Label>
+              <Textarea
+                placeholder="Map webhook payload to variables, e.g:\n{ userId: $.user.id, action: $.event.type }"
+                value={JSON.stringify(step.webhookConfig?.responseMapping || {}, null, 2)}
+                onChange={(e) => {
+                  try {
+                    const mapping = JSON.parse(e.target.value);
+                    updateStep(step.id, {
+                      webhookConfig: { ...step.webhookConfig, responseMapping: mapping }
+                    });
+                  } catch {}
+                }}
+                rows={4}
+              />
+            </div>
+          </div>
+        );
+
+      case 'database':
+        return (
+          <div className="space-y-4">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <Shield className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-yellow-800 dark:text-yellow-200">
+                    Read-Only Analytics Database
+                  </p>
+                  <p className="text-yellow-700 dark:text-yellow-300 text-xs mt-1">
+                    Queries run against a separate read-only analytics database with aggregated data.
+                    No access to production data or user information.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <Label>Query Type</Label>
+              <Select
+                value={step.databaseConfig?.queryType || 'preset'}
+                onValueChange={(value) => updateStep(step.id, {
+                  databaseConfig: { ...step.databaseConfig, queryType: value }
+                })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="preset">Preset Queries</SelectItem>
+                  <SelectItem value="custom" disabled>
+                    Custom Query (Requires Admin Approval)
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {step.databaseConfig?.queryType === 'preset' && (
+              <div>
+                <Label>Select Query</Label>
+                <Select
+                  value={step.databaseConfig?.presetQuery || ''}
+                  onValueChange={(value) => updateStep(step.id, {
+                    databaseConfig: { ...step.databaseConfig, presetQuery: value }
+                  })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a preset query" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="workspace_usage">Workspace Usage Stats</SelectItem>
+                    <SelectItem value="prompt_performance">Prompt Performance Metrics</SelectItem>
+                    <SelectItem value="chain_analytics">Chain Execution Analytics</SelectItem>
+                    <SelectItem value="user_activity">User Activity Summary</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'switch':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label>Switch Expression</Label>
+              <Input
+                placeholder="{{variable}} or expression to evaluate"
+                value={step.switchConfig?.expression || ''}
+                onChange={(e) => updateStep(step.id, {
+                  switchConfig: { ...step.switchConfig, expression: e.target.value }
+                })}
+              />
+            </div>
+
+            <div>
+              <Label>Cases</Label>
+              <div className="space-y-2">
+                {(step.switchConfig?.cases || []).map((caseItem: any, index: number) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder="Case value"
+                      value={caseItem.value}
+                      onChange={(e) => {
+                        const newCases = [...(step.switchConfig?.cases || [])];
+                        newCases[index] = { ...caseItem, value: e.target.value };
+                        updateStep(step.id, {
+                          switchConfig: { ...step.switchConfig, cases: newCases }
+                        });
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const newCases = (step.switchConfig?.cases || []).filter((_: any, i: number) => i !== index);
+                        updateStep(step.id, {
+                          switchConfig: { ...step.switchConfig, cases: newCases }
+                        });
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newCases = [...(step.switchConfig?.cases || []), { value: '', steps: [] }];
+                    updateStep(step.id, {
+                      switchConfig: { ...step.switchConfig, cases: newCases }
+                    });
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Case
+                </Button>
+              </div>
+            </div>
+
+            <div>
+              <Label>Default Case</Label>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Executes when no cases match
+              </p>
+            </div>
+          </div>
+        );
+
+      default:
+        return (
+          <div className="text-sm text-gray-500 dark:text-gray-400">
+            Configuration for {step.type} coming soon...
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            {mode === 'create' ? 'Create Advanced Chain' : 'Edit Advanced Chain'}
+          </CardTitle>
+          <CardDescription>
+            Build complex workflows with conditional logic, loops, and external integrations
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Chain Name</Label>
+              <Input
+                placeholder="e.g., Customer Onboarding Flow"
+                value={chainName}
+                onChange={(e) => setChainName(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Slug</Label>
+              <Input
+                placeholder="auto-generated-from-name"
+                value={chainSlug}
+                onChange={(e) => setChainSlug(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <div>
+            <Label>Description</Label>
+            <Textarea
+              placeholder="Describe what this chain does..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+            />
+          </div>
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+            <div className="flex items-start gap-2">
+              <Link className="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                  Webhook Trigger URL
+                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <code className="text-xs bg-white dark:bg-neutral-900 px-2 py-1 rounded flex-1">
+                    {webhookUrl}
+                  </code>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(webhookUrl);
+                      toast.success('Webhook URL copied');
+                    }}
+                  >
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Steps Builder */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Chain Steps</CardTitle>
+            <div className="flex gap-2">
+              <Select onValueChange={(value) => addStep(value as StepType)}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Add a step..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {STEP_TYPES.map(type => (
+                    <SelectItem key={type.value} value={type.value}>
+                      <div className="flex items-center gap-2">
+                        {type.icon}
+                        <span>{type.label}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {steps.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 dark:bg-neutral-800 rounded-lg">
+              <Layers className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-600 dark:text-gray-400">
+                No steps added yet. Select a step type above to get started.
+              </p>
+            </div>
+          ) : (
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="steps">
+                {(provided) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="space-y-2"
+                  >
+                    {steps.map((step, index) => (
+                      <Draggable key={step.id} draggableId={step.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className={`${
+                              snapshot.isDragging ? 'opacity-50' : ''
+                            }`}
+                          >
+                            <Card className={`${
+                              selectedStep === step.id ? 'ring-2 ring-blue-500' : ''
+                            }`}>
+                              <CardHeader className="py-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <div
+                                      {...provided.dragHandleProps}
+                                      className="cursor-move"
+                                    >
+                                      <GripVertical className="w-4 h-4 text-gray-400" />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      {renderStepIcon(step.type)}
+                                      <span className="font-medium">{step.name || `Step ${index + 1}`}</span>
+                                      <Badge variant="outline">{step.type}</Badge>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        const newExpanded = new Set(expandedSteps);
+                                        if (newExpanded.has(step.id)) {
+                                          newExpanded.delete(step.id);
+                                        } else {
+                                          newExpanded.add(step.id);
+                                        }
+                                        setExpandedSteps(newExpanded);
+                                      }}
+                                    >
+                                      {expandedSteps.has(step.id) ? (
+                                        <ChevronDown className="w-4 h-4" />
+                                      ) : (
+                                        <ChevronRight className="w-4 h-4" />
+                                      )}
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => deleteStep(step.id)}
+                                    >
+                                      <Trash2 className="w-4 h-4 text-red-500" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </CardHeader>
+                              {expandedSteps.has(step.id) && (
+                                <CardContent className="pt-0">
+                                  {renderStepContent(step)}
+                                  {validationErrors[step.id]?.length > 0 && (
+                                    <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                                      {validationErrors[step.id].map((error, i) => (
+                                        <p key={i} className="text-sm text-red-600 dark:text-red-400">
+                                          • {error}
+                                        </p>
+                                      ))}
+                                    </div>
+                                  )}
+                                </CardContent>
+                              )}
+                            </Card>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Actions */}
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          onClick={() => router.back()}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="success"
+          onClick={saveChain}
+          disabled={saving || steps.length === 0}
+        >
+          {saving ? (
+            <>
+              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4 mr-2" />
+              {mode === 'create' ? 'Create Chain' : 'Update Chain'}
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Prompt Search Modal */}
+      <PromptSearchModal
+        isOpen={promptSearchOpen}
+        onClose={() => {
+          setPromptSearchOpen(false);
+          setPromptSearchStepId(null);
+        }}
+        onSelect={handlePromptSelect}
+        workspaceId={workspaceId}
+      />
+    </div>
+  );
+}
