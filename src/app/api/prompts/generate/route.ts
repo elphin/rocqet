@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { decrypt } from '@/lib/crypto';
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
@@ -125,9 +126,13 @@ export async function POST(request: NextRequest) {
 
     const startTime = Date.now();
 
-    switch (selectedProvider) {
+    try {
+      // Decrypt the API key first
+      const decryptedKey = await decrypt(selectedKey.encrypted_key);
+      
+      switch (selectedProvider) {
       case 'openai':
-        const openai = new OpenAI({ apiKey: selectedKey.encrypted_key });
+        const openai = new OpenAI({ apiKey: decryptedKey });
         const openaiResponse = await openai.chat.completions.create({
           model: 'gpt-4-turbo-preview',
           messages: [
@@ -148,7 +153,7 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'anthropic':
-        const anthropic = new Anthropic({ apiKey: selectedKey.encrypted_key });
+        const anthropic = new Anthropic({ apiKey: decryptedKey });
         const claudeResponse = await anthropic.messages.create({
           model: 'claude-3-opus-20240229',
           messages: [{ role: 'user', content: generationPrompt }],
@@ -169,7 +174,7 @@ export async function POST(request: NextRequest) {
         break;
 
       case 'google':
-        const genAI = new GoogleGenerativeAI(selectedKey.encrypted_key);
+        const genAI = new GoogleGenerativeAI(decryptedKey);
         const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
         const geminiResponse = await model.generateContent(generationPrompt);
         const geminiText = geminiResponse.response.text();
@@ -184,6 +189,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ 
           error: `Unsupported provider: ${selectedProvider}` 
         }, { status: 400 });
+      }
+    } catch (decryptError) {
+      console.error('API key decryption error:', decryptError);
+      return NextResponse.json({ 
+        error: 'Failed to decrypt API key. Please re-enter your API key in settings.' 
+      }, { status: 500 });
     }
 
     const generationTime = Date.now() - startTime;
