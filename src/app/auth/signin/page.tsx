@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,18 @@ export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+
+  useEffect(() => {
+    const msg = searchParams.get('message');
+    if (msg) {
+      setMessage(msg);
+    }
+  }, [searchParams]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,9 +74,17 @@ export default function SignIn() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium">
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm font-medium">
+                  Password
+                </label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-500"
+                >
+                  Wachtwoord vergeten?
+                </Link>
+              </div>
               <Input
                 id="password"
                 name="password"
@@ -81,6 +98,12 @@ export default function SignIn() {
               />
             </div>
           </div>
+
+          {message && (
+            <div className="rounded-md bg-green-50 p-3 text-sm text-green-600">
+              {message}
+            </div>
+          )}
 
           {error && (
             <div className="rounded-md bg-red-50 p-3 text-sm text-red-600">
