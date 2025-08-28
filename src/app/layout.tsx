@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
 import { Toaster } from "@/lib/toast-config";
@@ -28,8 +29,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <Script
+          id="theme-script"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               // Apply theme before React hydration to prevent flicker
@@ -46,10 +51,6 @@ export default function RootLayout({
             `,
           }}
         />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
         <QueryProvider>
           {children}
           <Toaster />
