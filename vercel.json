@@ -4,11 +4,6 @@
   "framework": "nextjs",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "functions": {
-    "src/app/**/*.tsx": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "env": {
     "NEXT_TELEMETRY_DISABLED": "1"
   }
