@@ -98,10 +98,22 @@ export function GeneratePromptModal({
       if (error) throw error;
 
       if (data && data.length > 0) {
-        setAvailableProviders(data);
+        // Remove duplicates - keep only unique providers
+        const uniqueProviders = data.reduce((acc, current) => {
+          const existing = acc.find(item => item.provider === current.provider);
+          if (!existing) {
+            acc.push(current);
+          } else if (current.is_default && !existing.is_default) {
+            // Replace with default if current is default and existing isn't
+            acc[acc.indexOf(existing)] = current;
+          }
+          return acc;
+        }, [] as ApiKeyOption[]);
+        
+        setAvailableProviders(uniqueProviders);
         // Set default provider
-        const defaultProvider = data.find(p => p.is_default);
-        setProvider(defaultProvider?.provider || data[0].provider);
+        const defaultProvider = uniqueProviders.find(p => p.is_default);
+        setProvider(defaultProvider?.provider || uniqueProviders[0].provider);
         setShowProviderWarning(false);
       } else {
         setShowProviderWarning(true);
