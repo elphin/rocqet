@@ -17,6 +17,7 @@ export default async function SettingsLayout({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -24,6 +25,7 @@ export default async function SettingsLayout({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   return (

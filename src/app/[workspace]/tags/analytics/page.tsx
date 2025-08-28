@@ -14,6 +14,7 @@ export default async function TagAnalyticsPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     redirect('/login');
+    return null;
   }
 
   // Get workspace
@@ -34,6 +35,7 @@ export default async function TagAnalyticsPage({
 
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   // Get comprehensive tag analytics

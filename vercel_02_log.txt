@@ -1,0 +1,250 @@
+[15:42:45.665] Running build in Washington, D.C., USA (East) – iad1
+[15:42:45.665] Build machine configuration: 2 cores, 8 GB
+[15:42:45.683] Cloning github.com/elphin/rocqet (Branch: master, Commit: a3973bc)
+[15:42:45.814] Previous build caches not available
+[15:42:46.096] Cloning completed: 412.000ms
+[15:42:46.540] Running "vercel build"
+[15:42:47.112] Vercel CLI 46.0.5
+[15:42:47.900] Installing dependencies...
+[15:42:52.003] npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+[15:42:52.992] npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+[15:42:53.728] npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+[15:42:54.373] npm warn deprecated @supabase/auth-helpers-shared@0.7.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[15:42:54.933] npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+[15:42:55.066] npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+[15:42:55.153] npm warn deprecated @supabase/auth-helpers-nextjs@0.10.0: This package is now deprecated - please use the @supabase/ssr package instead.
+[15:42:55.156] npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+[15:42:55.157] npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+[15:42:55.389] npm warn deprecated @codemirror/text@0.19.6: As of 0.20.0, this package has been merged into @codemirror/state
+[15:42:55.395] npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+[15:42:55.497] npm warn deprecated @codemirror/rangeset@0.19.9: As of 0.20.0, this package has been merged into @codemirror/state
+[15:42:55.604] npm warn deprecated @codemirror/highlight@0.19.8: As of 0.20.0, this package has been split between @lezer/highlight and @codemirror/language
+[15:42:58.576] npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+[15:43:07.604] 
+[15:43:07.605] added 593 packages in 19s
+[15:43:07.605] 
+[15:43:07.605] 172 packages are looking for funding
+[15:43:07.606]   run `npm fund` for details
+[15:43:07.670] Running "npm run build"
+[15:43:07.790] 
+[15:43:07.791] > rocqet-app@0.1.0 build
+[15:43:07.791] > next build
+[15:43:07.792] 
+[15:43:07.917]  ⚠ You are using a non-standard "NODE_ENV" value in your environment. This creates inconsistencies in the project and is strongly advised against. Read more: https://nextjs.org/docs/messages/non-standard-node-env
+[15:43:08.434] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[15:43:08.435] This information is used to shape Next.js' roadmap and prioritize features.
+[15:43:08.435] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[15:43:08.435] https://nextjs.org/telemetry
+[15:43:08.435] 
+[15:43:08.497]    ▲ Next.js 15.5.0
+[15:43:08.497] 
+[15:43:08.607]    Creating an optimized production build ...
+[15:43:41.600] <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[15:43:41.824]  ⚠ Compiled with warnings in 2.5s
+[15:43:41.825] 
+[15:43:41.828] ./node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
+[15:43:41.828] A Node.js API is used (process.versions at line: 34) which is not supported in the Edge Runtime.
+[15:43:41.828] Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[15:43:41.829] 
+[15:43:41.829] Import trace for requested module:
+[15:43:41.829] ./node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
+[15:43:41.829] ./node_modules/@supabase/realtime-js/dist/module/index.js
+[15:43:41.829] ./node_modules/@supabase/supabase-js/dist/module/index.js
+[15:43:41.829] ./node_modules/@supabase/ssr/dist/module/createBrowserClient.js
+[15:43:41.830] ./node_modules/@supabase/ssr/dist/module/index.js
+[15:43:41.830] ./src/lib/supabase/middleware.ts
+[15:43:41.830] 
+[15:43:41.830] ./node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
+[15:43:41.830] A Node.js API is used (process.versions at line: 35) which is not supported in the Edge Runtime.
+[15:43:41.831] Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[15:43:41.831] 
+[15:43:41.831] Import trace for requested module:
+[15:43:41.831] ./node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
+[15:43:41.831] ./node_modules/@supabase/realtime-js/dist/module/index.js
+[15:43:41.832] ./node_modules/@supabase/supabase-js/dist/module/index.js
+[15:43:41.832] ./node_modules/@supabase/ssr/dist/module/createBrowserClient.js
+[15:43:41.832] ./node_modules/@supabase/ssr/dist/module/index.js
+[15:43:41.832] ./src/lib/supabase/middleware.ts
+[15:43:41.832] 
+[15:43:41.833] ./node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
+[15:43:41.833] A Node.js API is used (process.versions at line: 36) which is not supported in the Edge Runtime.
+[15:43:41.834] Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[15:43:41.834] 
+[15:43:41.834] Import trace for requested module:
+[15:43:41.834] ./node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js
+[15:43:41.835] ./node_modules/@supabase/realtime-js/dist/module/index.js
+[15:43:41.835] ./node_modules/@supabase/supabase-js/dist/module/index.js
+[15:43:41.835] ./node_modules/@supabase/ssr/dist/module/createBrowserClient.js
+[15:43:41.835] ./node_modules/@supabase/ssr/dist/module/index.js
+[15:43:41.835] ./src/lib/supabase/middleware.ts
+[15:43:41.835] 
+[15:43:41.836] ./node_modules/@supabase/supabase-js/dist/module/index.js
+[15:43:41.836] A Node.js API is used (process.version at line: 24) which is not supported in the Edge Runtime.
+[15:43:41.836] Learn more: https://nextjs.org/docs/api-reference/edge-runtime
+[15:43:41.836] 
+[15:43:41.836] Import trace for requested module:
+[15:43:41.837] ./node_modules/@supabase/supabase-js/dist/module/index.js
+[15:43:41.837] ./node_modules/@supabase/ssr/dist/module/createBrowserClient.js
+[15:43:41.837] ./node_modules/@supabase/ssr/dist/module/index.js
+[15:43:41.837] ./src/lib/supabase/middleware.ts
+[15:43:41.837] 
+[15:43:57.720]  ✓ Compiled successfully in 46s
+[15:43:57.727]    Linting and checking validity of types ...
+[15:44:16.949] 
+[15:44:16.950] Failed to compile.
+[15:44:16.951] 
+[15:44:16.951] ./src/app/[workspace]/prompts/[id]/edit/edit-form.tsx
+[15:44:16.956] 63:6  Warning: React Hook useEffect has a missing dependency: 'handleSave'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.957] 
+[15:44:16.959] ./src/app/[workspace]/prompts/[id]/edit/page-old.tsx
+[15:44:16.960] 191:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.960] 
+[15:44:16.960] ./src/app/[workspace]/prompts/[id]/edit/page.tsx
+[15:44:16.960] 179:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.960] 
+[15:44:16.960] ./src/app/[workspace]/prompts/[id]/playground/page-backup.tsx
+[15:44:16.960] 88:6  Warning: React Hook useEffect has missing dependencies: 'router' and 'supabase'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.960] 
+[15:44:16.960] ./src/app/[workspace]/prompts/[id]/playground/page-enhanced.tsx
+[15:44:16.960] 100:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.960] 
+[15:44:16.960] ./src/app/[workspace]/prompts/[id]/playground/page-original.tsx
+[15:44:16.960] 88:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.960] 
+[15:44:16.960] ./src/app/[workspace]/prompts/[id]/playground/page.tsx
+[15:44:16.960] 153:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.960] 196:6  Warning: React Hook useEffect has a missing dependency: 'handleExecute'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.960] 696:31  Warning: 'parts' is never reassigned. Use 'const' instead.  prefer-const
+[15:44:16.960] 752:29  Warning: 'parts' is never reassigned. Use 'const' instead.  prefer-const
+[15:44:16.960] 
+[15:44:16.960] ./src/app/[workspace]/prompts/new/edit/page.tsx
+[15:44:16.960] 127:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.961] 
+[15:44:16.961] ./src/app/[workspace]/queries/[id]/page.tsx
+[15:44:16.961] 107:6  Warning: React Hook useEffect has missing dependencies: 'loadQuery' and 'loadQueryRuns'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.961] 
+[15:44:16.961] ./src/app/[workspace]/queries/new/page.tsx
+[15:44:16.961] 64:6  Warning: React Hook useEffect has a missing dependency: 'loadConnections'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.961] 
+[15:44:16.961] ./src/app/[workspace]/settings/team/client-new.tsx
+[15:44:16.961] 137:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.961] 
+[15:44:16.961] ./src/app/api/notifications/preferences/route.ts
+[15:44:16.961] 15:30  Warning: 'error' is never reassigned. Use 'const' instead.  prefer-const
+[15:44:16.961] 
+[15:44:16.961] ./src/app/api/workspace/invite/route.ts
+[15:44:16.961] 9:24  Error: A `require()` style import is forbidden.  @typescript-eslint/no-require-imports
+[15:44:16.961] 
+[15:44:16.961] ./src/app/dashboard/workspace-setup/page.tsx
+[15:44:16.962] 57:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.963] 
+[15:44:16.963] ./src/app/demo/buttons/page.tsx
+[15:44:16.963] 387:52  Error: Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+[15:44:16.963] 393:52  Error: Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+[15:44:16.963] 399:52  Error: Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+[15:44:16.963] 
+[15:44:16.963] ./src/app/prompts/new/page.tsx
+[15:44:16.963] 34:6  Warning: React Hook useEffect has a missing dependency: 'fetchWorkspace'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.963] 
+[15:44:16.963] ./src/app/templates/[slug]/client.tsx
+[15:44:16.963] 112:6  Warning: React Hook useEffect has missing dependencies: 'checkAuth' and 'fetchTemplate'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.963] 186:6  Warning: React Hook useEffect has a missing dependency: 'fetchFolders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.963] 
+[15:44:16.963] ./src/app/templates/client.tsx
+[15:44:16.963] 100:6  Warning: React Hook useEffect has a missing dependency: 'fetchTemplates'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.963] 
+[15:44:16.963] ./src/app/templates/publish/client.tsx
+[15:44:16.963] 77:6  Warning: React Hook useEffect has a missing dependency: 'loadInitialData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.964] 120:6  Warning: React Hook useEffect has a missing dependency: 'variables'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.964] 
+[15:44:16.964] ./src/components/api-key-manager.tsx
+[15:44:16.964] 51:6  Warning: React Hook useEffect has a missing dependency: 'loadApiKeys'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.964] 
+[15:44:16.964] ./src/components/api-key-settings.tsx
+[15:44:16.964] 76:6  Warning: React Hook useEffect has a missing dependency: 'loadApiKeys'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.964] 
+[15:44:16.964] ./src/components/chain-builder-premium-v2.tsx
+[15:44:16.964] 243:6  Warning: React Hook React.useEffect has missing dependencies: 'currentData.config', 'editingData', 'step.config', 'step.description', 'step.name', 'step.outputVariable', 'step.promptId', and 'step.promptName'. Either include them or remove the dependency array. If 'setEditingData' needs the current value of 'step.name', you can also switch to useReducer instead of useState and read 'step.name' in the reducer.  react-hooks/exhaustive-deps
+[15:44:16.964] 1530:6  Warning: React Hook React.useEffect has a missing dependency: 'loadApiKeys'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.964] 
+[15:44:16.964] ./src/components/chain-execution-panel.tsx
+[15:44:16.964] 94:6  Warning: React Hook useEffect has missing dependencies: 'fetchApiKeys' and 'initializeExecutionSteps'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.964] 
+[15:44:16.964] ./src/components/chain-runner.tsx
+[15:44:16.964] 86:6  Warning: React Hook useEffect has missing dependencies: 'chain.id', 'firstPrompt?.content', and 'requiredVariables'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.964] 
+[15:44:16.964] ./src/components/chain-test-panel.tsx
+[15:44:16.964] 269:17  Error: 'Globe' is not defined.  react/jsx-no-undef
+[15:44:16.964] 
+[15:44:16.964] ./src/components/codemirror-prompt-editor.tsx
+[15:44:16.964] 271:6  Warning: React Hook useEffect has missing dependencies: 'currentMode', 'mode', 'onChange', 'placeholder', 'rocqetTheme', 'value', and 'variableAutocomplete'. Either include them or remove the dependency array. If 'onChange' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+[15:44:16.964] 
+[15:44:16.964] ./src/components/folder-tree-draggable.tsx
+[15:44:16.964] 52:6  Warning: React Hook useEffect has a missing dependency: 'loadFolders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.965] 
+[15:44:16.965] ./src/components/folder-tree.tsx
+[15:44:16.965] 45:6  Warning: React Hook useEffect has a missing dependency: 'loadFolders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.965] 
+[15:44:16.965] ./src/components/layout/AppHeader.tsx
+[15:44:16.965] 70:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.965] 
+[15:44:16.965] ./src/components/modals/share-modal-v2.tsx
+[15:44:16.965] 62:6  Warning: React Hook useEffect has a missing dependency: 'loadShareLinks'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.965] 
+[15:44:16.965] ./src/components/modals/version-history-modal.tsx
+[15:44:16.965] 43:6  Warning: React Hook useEffect has a missing dependency: 'loadVersions'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.965] 
+[15:44:16.965] ./src/components/prompt-documentation.tsx
+[15:44:16.965] 77:6  Warning: React Hook useEffect has a missing dependency: 'onChange'. Either include it or remove the dependency array. If 'onChange' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+[15:44:16.965] 
+[15:44:16.966] ./src/components/prompt-playground-compact.tsx
+[15:44:16.966] 75:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.966] 
+[15:44:16.966] ./src/components/prompt-playground-enhanced.tsx
+[15:44:16.966] 116:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.966] 430:23  Warning: 'parts' is never reassigned. Use 'const' instead.  prefer-const
+[15:44:16.966] 
+[15:44:16.966] ./src/components/prompt-playground.tsx
+[15:44:16.966] 208:6  Warning: React Hook useEffect has missing dependencies: 'promptId' and 'workspaceSlug'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.966] 234:6  Warning: React Hook useEffect has a missing dependency: 'variables'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.966] 
+[15:44:16.966] ./src/components/prompt-run-history.tsx
+[15:44:16.966] 90:6  Warning: React Hook useEffect has a missing dependency: 'fetchRuns'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.966] 
+[15:44:16.966] ./src/components/prompt-search-modal.tsx
+[15:44:16.966] 151:25  Warning: React Hook useCallback received a function whose dependencies are unknown. Pass an inline function instead.  react-hooks/exhaustive-deps
+[15:44:16.966] 
+[15:44:16.966] ./src/components/prompt-search.tsx
+[15:44:16.966] 33:27  Warning: React Hook useCallback received a function whose dependencies are unknown. Pass an inline function instead.  react-hooks/exhaustive-deps
+[15:44:16.966] 42:6  Warning: React Hook useEffect has a missing dependency: 'debouncedSearch'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.966] 
+[15:44:16.967] ./src/components/smart-discovery.tsx
+[15:44:16.967] 44:6  Warning: React Hook useEffect has a missing dependency: 'fetchRecommendations'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.967] 51:6  Warning: React Hook useEffect has a missing dependency: 'fetchRelatedPrompts'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.967] 
+[15:44:16.967] ./src/components/ui/input.tsx
+[15:44:16.967] 4:18  Error: An interface declaring no members is equivalent to its supertype.  @typescript-eslint/no-empty-object-type
+[15:44:16.967] 
+[15:44:16.967] ./src/components/ui/textarea.tsx
+[15:44:16.967] 5:18  Error: An interface declaring no members is equivalent to its supertype.  @typescript-eslint/no-empty-object-type
+[15:44:16.967] 
+[15:44:16.967] ./src/components/workspace-sidebar-v2.tsx
+[15:44:16.967] 68:6  Warning: React Hook useEffect has a missing dependency: 'loadFolders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.967] 
+[15:44:16.967] ./src/components/workspace-sidebar-v3.tsx
+[15:44:16.967] 71:6  Warning: React Hook useEffect has a missing dependency: 'loadFolders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.967] 
+[15:44:16.968] ./src/components/workspace-switcher.tsx
+[15:44:16.968] 30:6  Warning: React Hook useEffect has a missing dependency: 'loadWorkspaces'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.968] 101:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+[15:44:16.968] 151:29  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+[15:44:16.968] 182:29  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+[15:44:16.969] 
+[15:44:16.969] ./src/hooks/use-realtime.tsx
+[15:44:16.969] 86:6  Warning: React Hook useEffect has a missing dependency: 'config'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+[15:44:16.969] 
+[15:44:16.969] ./src/lib/execution/chain-execution-engine.ts
+[15:44:16.969] 986:11  Warning: 'loopResults' is never reassigned. Use 'const' instead.  prefer-const
+[15:44:16.970] 
+[15:44:16.970] info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+[15:44:16.997] Error: Command "npm run build" exited with 1

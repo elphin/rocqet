@@ -15,6 +15,7 @@ export default async function NewPromptDirectPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Get workspace details and membership
@@ -36,6 +37,7 @@ export default async function NewPromptDirectPage({
 
   if (!membership) {
     redirect('/dashboard');
+    return null;
   }
 
   // Check if user can create more prompts

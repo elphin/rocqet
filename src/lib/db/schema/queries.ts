@@ -1,8 +1,8 @@
 import { pgTable, uuid, text, varchar, boolean, jsonb, timestamp, integer, uniqueIndex } from 'drizzle-orm/pg-core';
 import { workspaces } from './workspaces';
 import { databaseConnections } from './database-connections';
-import { folders } from './folders';
-import { users } from './auth';
+// import { folders } from './folders'; // TODO: Create folders schema
+// import { users } from './auth'; // TODO: Create auth schema
 
 // Main queries table
 export const queries = pgTable('queries', {
@@ -20,7 +20,7 @@ export const queries = pgTable('queries', {
   variablesSchema: jsonb('variables_schema').default([]),
   
   // Organization
-  folderId: uuid('folder_id').references(() => folders.id, { onDelete: 'set null' }),
+  folderId: uuid('folder_id'), // TODO: Add reference when folders schema is created
   tags: text('tags').array().default([]),
   isFavorite: boolean('is_favorite').default(false),
   
@@ -30,8 +30,8 @@ export const queries = pgTable('queries', {
   allowedUsers: uuid('allowed_users').array().default([]),
   
   // Metadata
-  createdBy: uuid('created_by').notNull().references(() => users.id),
-  updatedBy: uuid('updated_by').notNull().references(() => users.id),
+  createdBy: uuid('created_by').notNull(), // TODO: Add reference when auth schema is created
+  updatedBy: uuid('updated_by').notNull(), // TODO: Add reference when auth schema is created
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 }, (table) => ({
@@ -43,7 +43,7 @@ export const queryRuns = pgTable('query_runs', {
   id: uuid('id').primaryKey().defaultRandom(),
   queryId: uuid('query_id').notNull().references(() => queries.id, { onDelete: 'cascade' }),
   workspaceId: uuid('workspace_id').notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
-  userId: uuid('user_id').notNull().references(() => users.id),
+  userId: uuid('user_id').notNull(), // TODO: Add reference when auth schema is created
   
   // Execution details
   parameters: jsonb('parameters'),
@@ -76,7 +76,7 @@ export const queryVersions = pgTable('query_versions', {
   changeDescription: text('change_description'),
   
   // Metadata
-  createdBy: uuid('created_by').notNull().references(() => users.id),
+  createdBy: uuid('created_by').notNull(), // TODO: Add reference when auth schema is created
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 }, (table) => ({
   queryVersionUnique: uniqueIndex('query_versions_unique').on(table.queryId, table.version),
@@ -109,7 +109,7 @@ export const querySnippets = pgTable('query_snippets', {
   description: text('description'),
   sqlSnippet: text('sql_snippet').notNull(),
   
-  createdBy: uuid('created_by').notNull().references(() => users.id),
+  createdBy: uuid('created_by').notNull(), // TODO: Add reference when auth schema is created
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 }, (table) => ({
   snippetSlugUnique: uniqueIndex('snippets_workspace_slug_unique').on(table.workspaceId, table.slug),

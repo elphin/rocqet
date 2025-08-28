@@ -57,6 +57,7 @@ export default async function AcceptInvitePage({
   // If user is not logged in, redirect to login with return URL
   if (!user) {
     redirect(`/login?redirect=/invite/${id}`);
+    return null;
   }
 
   // Check if user is already a member
@@ -69,6 +70,7 @@ export default async function AcceptInvitePage({
 
   if (existingMember) {
     redirect(`/${invite.workspaces.slug}`);
+    return null;
   }
 
   return <AcceptInviteClient invite={invite} user={user} />;

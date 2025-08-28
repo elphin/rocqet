@@ -34,16 +34,19 @@ export default async function SharedPromptPage({
 
   if (linkError || !shareLink) {
     redirect('/404');
+    return null;
   }
 
   // Check if link is expired
   if (shareLink.expires_at && new Date(shareLink.expires_at) < new Date()) {
     redirect('/404');
+    return null;
   }
 
   // Check if max views reached
   if (shareLink.max_views && shareLink.current_views >= shareLink.max_views) {
     redirect('/404');
+    return null;
   }
 
   // Increment view count

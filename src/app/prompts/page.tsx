@@ -11,6 +11,7 @@ export default async function PromptsPage() {
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Get workspace (use most recently joined if multiple)
@@ -31,6 +32,7 @@ export default async function PromptsPage() {
 
   if (!workspaceMembers || workspaceMembers.length === 0) {
     redirect('/dashboard/workspace-setup');
+    return null;
   }
 
   const currentWorkspace = workspaceMembers[0].workspaces;

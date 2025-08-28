@@ -22,6 +22,7 @@ export default async function ApiKeysPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -29,6 +30,7 @@ export default async function ApiKeysPage({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   const workspace = membership.workspaces;
@@ -65,6 +67,7 @@ export default async function ApiKeysPage({
   // Check user permissions - only owners and admins can manage API keys
   if (!['owner', 'admin'].includes(membership.role)) {
     redirect(`/${workspaceSlug}/prompts`);
+    return null;
   }
 
   // Get existing API keys

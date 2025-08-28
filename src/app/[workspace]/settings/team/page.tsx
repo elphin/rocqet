@@ -16,6 +16,7 @@ export default async function TeamSettingsPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -23,6 +24,7 @@ export default async function TeamSettingsPage({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   const workspace = membership.workspaces;
@@ -59,6 +61,7 @@ export default async function TeamSettingsPage({
   // Check if user has admin/owner role
   if (membership.role !== 'owner' && membership.role !== 'admin') {
     redirect(`/${workspaceSlug}/dashboard`);
+    return null;
   }
 
   // Get all team members

@@ -13,6 +13,7 @@ export default async function WorkspaceSettingsPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Get workspace details
@@ -28,6 +29,7 @@ export default async function WorkspaceSettingsPage({
 
   if (!workspace) {
     redirect('/dashboard');
+    return null;
   }
 
   // Get user's role in workspace
@@ -41,6 +43,7 @@ export default async function WorkspaceSettingsPage({
   // Only admins can access workspace settings
   if (membership?.role !== 'admin' && membership?.role !== 'owner') {
     redirect(`/${workspaceSlug}/dashboard`);
+    return null;
   }
 
   // Get current member count

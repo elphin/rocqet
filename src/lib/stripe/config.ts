@@ -1,10 +1,12 @@
 import Stripe from 'stripe';
 
-// Initialize Stripe
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
-  typescript: true,
-});
+// Initialize Stripe only if secret key is provided
+export const stripe = process.env.STRIPE_SECRET_KEY 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2024-11-20.acacia',
+      typescript: true,
+    })
+  : null;
 
 // Stripe Product/Price IDs (you'll set these in Stripe Dashboard)
 export const STRIPE_PRODUCTS = {
@@ -77,6 +79,9 @@ export async function createCheckoutSession({
   cancelUrl: string;
   metadata?: Record<string, string>;
 }) {
+  if (!stripe) {
+    throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.');
+  }
   const sessionConfig: Stripe.Checkout.SessionCreateParams = {
     customer: customerId,
     customer_email: customerId ? undefined : customerEmail,
@@ -129,6 +134,9 @@ export async function createPortalSession({
   customerId: string;
   returnUrl: string;
 }) {
+  if (!stripe) {
+    throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.');
+  }
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
     return_url: returnUrl,
@@ -143,6 +151,9 @@ export async function updateSubscriptionQuantity(
   subscriptionId: string,
   quantity: number
 ) {
+  if (!stripe) {
+    throw new Error('Stripe is not configured. Please set STRIPE_SECRET_KEY environment variable.');
+  }
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   
   if (!subscription.items.data[0]) {

@@ -248,11 +248,13 @@ export default async function QueriesPage({ params, searchParams }: PageProps) {
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   const membership = await validateWorkspaceAccess(workspaceSlug, user.id);
   if (!membership) {
     redirect('/dashboard');
+    return null;
   }
 
   const workspace = membership.workspaces;

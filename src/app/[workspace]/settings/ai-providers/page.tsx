@@ -21,6 +21,7 @@ export default async function AiProvidersPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -28,6 +29,7 @@ export default async function AiProvidersPage({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   const workspace = membership.workspaces;

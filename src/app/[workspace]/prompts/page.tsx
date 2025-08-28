@@ -16,6 +16,7 @@ export default async function PromptsPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -23,15 +24,18 @@ export default async function PromptsPage({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   const workspace = membership.workspaces;
+  // TypeScript workaround - we know workspace exists after membership validation
+  const workspaceData = workspace as any;
 
   // Get prompts count for pagination (exclude soft-deleted)
   const { count } = await supabase
     .from('prompts')
     .select('*', { count: 'exact', head: true })
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .is('deleted_at', null);
 
   // Get first page of prompts (limit 50, exclude soft-deleted)
@@ -39,7 +43,7 @@ export default async function PromptsPage({
   const { data: prompts, error: promptsError } = await supabase
     .from('prompts')
     .select('*')
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .is('deleted_at', null)
     .order('updated_at', { ascending: false })
     .range(0, pageSize - 1);
@@ -52,7 +56,7 @@ export default async function PromptsPage({
   const { data: folders, error: foldersError } = await supabase
     .from('folders')
     .select('*')
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .order('name', { ascending: true });
 
   if (foldersError) {
@@ -60,7 +64,7 @@ export default async function PromptsPage({
   }
 
   // Get tier limits
-  const tier = workspace.subscription_tier || 'starter';
+  const tier = workspaceData.subscription_tier || 'starter';
   const limits = tierLimits[tier as keyof typeof tierLimits];
 
   return (
@@ -68,7 +72,7 @@ export default async function PromptsPage({
       initialPrompts={prompts || []} 
       folders={folders || []}
       workspaceSlug={workspaceSlug}
-      workspaceId={workspace.id}
+      workspaceId={workspaceData.id}
       workspaceTier={tier}
       totalCount={count || 0}
       pageSize={pageSize}

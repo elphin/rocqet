@@ -13,6 +13,7 @@ export default async function BillingPage({
   
   if (!user) {
     redirect('/login');
+    return null;
   }
   
   // Get workspace
@@ -28,6 +29,7 @@ export default async function BillingPage({
   
   if (!workspace) {
     redirect('/');
+    return null;
   }
   
   // Get membership

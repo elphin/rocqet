@@ -96,7 +96,8 @@
       "Bash(npm:*)",
       "mcp__exa__crawling_exa",
       "Bash(echo \"✅ Slug implementation complete!\n\nSummary of changes:\n1. Added ''slug'' column to chains table in schema\n2. Created and ran migration to add slugs to existing chains\n3. Updated chain-actions.ts to generate slugs when creating chains\n4. Updated chains-client.tsx to use slugs in navigation links\n5. Updated chain detail/edit pages to handle both slugs and IDs (backwards compatibility)\n6. Updated simple chain builder to include slugs when saving\n7. Updated v2 chain pages to handle slugs\n\nSlug format: ''chain-name-randomsuffix'' for new chains\nExisting chains: ''chain-name-idprefix'' format\")",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(rg:*)"
     ],
     "deny": []
   }

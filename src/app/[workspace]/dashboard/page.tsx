@@ -24,6 +24,7 @@ export default async function WorkspaceDashboard({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -31,9 +32,12 @@ export default async function WorkspaceDashboard({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   const workspace = membership.workspaces;
+  // TypeScript workaround - we know workspace exists after membership validation
+  const workspaceData = workspace as any;
 
   // Time ranges for analytics
   const now = new Date();
@@ -44,18 +48,18 @@ export default async function WorkspaceDashboard({
   const { count: promptCount } = await supabase
     .from('prompts')
     .select('*', { count: 'exact', head: true })
-    .eq('workspace_id', workspace.id);
+    .eq('workspace_id', workspaceData.id);
 
   const { count: memberCount } = await supabase
     .from('workspace_members')
     .select('*', { count: 'exact', head: true })
-    .eq('workspace_id', workspace.id);
+    .eq('workspace_id', workspaceData.id);
 
   // Get recent prompts
   const { data: recentPrompts } = await supabase
     .from('prompts')
     .select('*')
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .order('updated_at', { ascending: false })
     .limit(5);
 
@@ -63,16 +67,16 @@ export default async function WorkspaceDashboard({
   const { data: trendingPrompts } = await supabase
     .from('prompts')
     .select('*')
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .order('usage_count', { ascending: false })
     .limit(5);
 
   // Get recent activity from activities table
-  const recentActivities = await getRecentActivities(workspace.id, 20);
+  const recentActivities = await getRecentActivities(workspaceData.id, 20);
   
   // Get activity statistics for the last 30 days
   const activityStats = await getActivityStats(
-    workspace.id,
+    workspaceData.id,
     thirtyDaysAgo,
     now
   );
@@ -87,10 +91,10 @@ export default async function WorkspaceDashboard({
 
   // Calculate advanced statistics
   const totalRuns = promptRuns?.length || 0;
-  const uniquePromptsRun = new Set(promptRuns?.map(r => r.prompt_id)).size;
+  const uniquePromptsRun = new Set(promptRuns?.map((r: any) => r.prompt_id)).size;
   const avgRunsPerDay = totalRuns / 30;
   const estimatedSavings = totalRuns * 0.15; // $0.15 saved per prompt use
-  const activeToday = promptRuns?.filter(run => {
+  const activeToday = promptRuns?.filter((run: any) => {
     const runDate = new Date(run.executed_at);
     return runDate.toDateString() === now.toDateString();
   }).length || 0;
@@ -102,7 +106,7 @@ export default async function WorkspaceDashboard({
     .eq('workspace_id', workspace.id)
     .lte('created_at', thirtyDaysAgo.toISOString());
     
-  const promptGrowth = lastMonthPrompts 
+  const promptGrowth = lastMonthPrompts && promptCount !== null
     ? Math.round(((promptCount - lastMonthPrompts) / lastMonthPrompts) * 100)
     : 0;
 
@@ -220,7 +224,7 @@ export default async function WorkspaceDashboard({
               
               {recentPrompts && recentPrompts.length > 0 ? (
                 <div className="space-y-3">
-                  {recentPrompts.map((prompt) => (
+                  {(recentPrompts as any[]).map((prompt: any) => (
                     <Link
                       key={prompt.id}
                       href={`/${workspaceSlug}/prompts/${prompt.slug}`}
@@ -275,7 +279,7 @@ export default async function WorkspaceDashboard({
               
               {trendingPrompts && trendingPrompts.length > 0 ? (
                 <div className="space-y-3">
-                  {trendingPrompts.slice(0, 3).map((prompt, index) => (
+                  {(trendingPrompts as any[]).slice(0, 3).map((prompt: any, index: number) => (
                     <Link
                       key={prompt.id}
                       href={`/${workspaceSlug}/prompts/${prompt.slug}`}
@@ -314,7 +318,7 @@ export default async function WorkspaceDashboard({
               
               {recentActivities && recentActivities.length > 0 ? (
                 <div className="space-y-3">
-                  {recentActivities.slice(0, 5).map((activity) => {
+                  {(recentActivities as any[]).slice(0, 5).map((activity: any) => {
                     const getActivityIcon = () => {
                       if (activity.type.includes('prompt')) return <FileText className="h-3 w-3" />;
                       if (activity.type.includes('folder')) return <Folder className="h-3 w-3" />;

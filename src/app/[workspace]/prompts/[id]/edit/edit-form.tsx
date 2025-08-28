@@ -143,13 +143,13 @@ export function EditPromptForm({
   const handleRemoveTag = (tagId: string) => {
     setFormData({
       ...formData,
-      selectedTags: formData.selectedTags.filter(id => id !== tagId)
+      selectedTags: formData.selectedTags.filter((id: string) => id !== tagId)
     });
   };
 
   // Extract variables from content
   const extractedVariables = (formData.content.match(/\{\{([^}]+)\}\}/g) || [])
-    .map(v => v.replace(/[{}]/g, '').trim());
+    .map((v: string) => v.replace(/[{}]/g, '').trim());
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -314,8 +314,8 @@ export function EditPromptForm({
                 Tags
               </label>
               <div className="flex flex-wrap gap-1.5 mb-2">
-                {formData.selectedTags.map(tagId => {
-                  const tag = tags.find(t => t.id === tagId);
+                {formData.selectedTags.map((tagId: string) => {
+                  const tag = tags.find((t: any) => t.id === tagId);
                   if (!tag) return null;
                   return (
                     <span 
@@ -475,7 +475,7 @@ export function EditPromptForm({
                   Detected Variables
                 </h3>
                 <div className="space-y-1">
-                  {extractedVariables.map((variable, index) => (
+                  {extractedVariables.map((variable: string, index: number) => (
                     <div key={index} className="flex items-center gap-2">
                       <span className="text-[10px] font-mono text-primary">
                         {`{{${variable}}}`}

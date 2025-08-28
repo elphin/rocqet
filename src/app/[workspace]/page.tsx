@@ -8,4 +8,5 @@ export default async function WorkspacePage({
   const { workspace: workspaceSlug } = await params;
   // Redirect to dashboard when accessing workspace root
   redirect(`/${workspaceSlug}/dashboard`);
+  return null;
 }

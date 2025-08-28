@@ -99,7 +99,13 @@ export default function ChainExecutionPanel({
       
       if (result.success && result.data) {
         setCurrentExecution(result.data);
-        setExecutionSteps(result.data.steps || []);
+        // Convert steps to the correct format
+        const formattedSteps: ExecutionStep[] = (result.data.steps || []).map((step: any) => ({
+          ...step,
+          startedAt: step.startedAt ? new Date(step.startedAt).toISOString() : undefined,
+          completedAt: step.completedAt ? new Date(step.completedAt).toISOString() : undefined
+        }));
+        setExecutionSteps(formattedSteps);
         
         // Add to executions list
         setExecutions([

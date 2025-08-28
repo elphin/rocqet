@@ -19,7 +19,7 @@ export const workspaces = pgTable('workspaces', {
   }),
   
   // Subscription
-  plan: varchar('plan', { length: 50 }).default('free').notNull(),
+  subscription_tier: varchar('subscription_tier', { length: 50 }).default('starter').notNull(),
   subscriptionStatus: varchar('subscription_status', { length: 50 }).default('active'),
   subscriptionEndDate: timestamp('subscription_end_date'),
   

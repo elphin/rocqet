@@ -8,6 +8,7 @@ export default async function AdminTiersPage() {
   
   if (!user) {
     redirect('/login');
+    return null;
   }
   
   // Check if user is admin
@@ -19,6 +20,7 @@ export default async function AdminTiersPage() {
   
   if (!adminUser || !adminUser.can_manage_tiers) {
     redirect('/');
+    return null;
   }
   
   // Get tier configurations

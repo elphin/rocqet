@@ -15,6 +15,7 @@ export default async function PromptDetailPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -22,21 +23,24 @@ export default async function PromptDetailPage({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   const workspace = membership.workspaces;
+  // TypeScript workaround - we know workspace exists after membership validation
+  const workspaceData = workspace as any;
 
   // Get prompt details by slug ONLY - without user joins for now
   const { data: prompt, error } = await supabase
     .from('prompts')
     .select('*')
     .eq('slug', id) // id is actually the slug
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .single();
 
   console.log('Prompt lookup result:', { 
     slug: id,
-    workspaceId: workspace.id,
+    workspaceId: workspaceData.id,
     found: !!prompt,
     error
   });
@@ -44,13 +48,17 @@ export default async function PromptDetailPage({
   if (!prompt || error) {
     console.error('Prompt not found, redirecting to list');
     redirect(`/${workspaceSlug}/prompts`);
+    return null;
   }
+
+  // TypeScript workaround - we know prompt exists after the check
+  const promptData = prompt as any;
 
   // Get version history - without user joins for now
   const { data: versions } = await supabase
     .from('prompt_versions')
     .select('*')
-    .eq('prompt_id', prompt.id) // Use actual prompt ID for relations
+    .eq('prompt_id', promptData.id) // Use actual prompt ID for relations
     .order('version', { ascending: false })
     .limit(5);
 
@@ -58,17 +66,17 @@ export default async function PromptDetailPage({
   const { data: runs } = await supabase
     .from('prompt_runs')
     .select('*')
-    .eq('prompt_id', prompt.id) // Use actual prompt ID for relations
+    .eq('prompt_id', promptData.id) // Use actual prompt ID for relations
     .order('executed_at', { ascending: false })
     .limit(5);
 
   return (
     <PromptDetailClient
-      prompt={prompt}
-      versions={versions}
-      runs={runs}
+      prompt={promptData}
+      versions={versions || []}
+      runs={runs || []}
       membership={membership}
-      workspace={workspace}
+      workspace={workspaceData}
       params={{ workspace: workspaceSlug, id }}
     />
   );

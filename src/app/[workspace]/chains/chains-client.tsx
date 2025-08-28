@@ -113,7 +113,7 @@ export function ChainsClient({ chains: initialChains, workspaceSlug }: ChainsCli
 
     const { data, error } = await supabase
       .from('chains')
-      .insert(newChain)
+      .insert(newChain as any)
       .select()
       .single();
 

@@ -8,6 +8,7 @@ export default async function NotificationsPage() {
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Fetch notifications

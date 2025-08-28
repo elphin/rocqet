@@ -1,60 +1,88 @@
-import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { validateWorkspaceAccess } from '@/lib/workspace/validate';
-import { ChainEditorClient } from './chain-editor-client';
+import { redirect } from 'next/navigation';
+import { ChainBuilderNew as ChainEditorClient } from '@/components/chain-builder-new';
 
-export default async function EditChainPage({
-  params
-}: {
-  params: Promise<{ workspace: string; id: string }>
-}) {
+interface PageProps {
+  params: Promise<{ workspace: string; id: string }>;
+}
+
+export default async function ChainEditPage({ params }: PageProps) {
   const { workspace: workspaceSlug, id: slugOrId } = await params;
   const supabase = await createClient();
+
+  // Get user
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
   
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  if (!user) {
-    redirect('/auth/signin');
+  if (authError || !user) {
+    redirect(`/auth/signin?returnTo=/${workspaceSlug}/chains/${slugOrId}/edit`);
+    return null;
   }
 
-  // Validate workspace access
-  const membership = await validateWorkspaceAccess(workspaceSlug, user.id);
+  // Get workspace
+  const { data: workspace, error: wsError } = await supabase
+    .from('workspaces')
+    .select('*')
+    .eq('slug', workspaceSlug)
+    .single();
+
+  if (wsError || !workspace) {
+    redirect('/dashboard');
+    return null;
+  }
   
+  // TypeScript workaround - we know workspace exists after the check
+  const workspaceData = workspace as any;
+
+  // Check membership
+  const { data: membership } = await supabase
+    .from('workspace_members')
+    .select('*')
+    .eq('workspace_id', workspaceData.id)
+    .eq('user_id', user.id)
+    .single();
+
   if (!membership) {
-    redirect('/');
+    redirect('/dashboard');
+    return null;
   }
 
-  const workspace = membership.workspaces;
-
-  // Get chain details (try by slug first, then by id for backwards compatibility)
-  let { data: chain, error } = await supabase
+  // Get chain by slug or ID
+  let chain = null;
+  
+  // Try slug first
+  const { data: slugData } = await supabase
     .from('chains')
     .select('*')
     .eq('slug', slugOrId)
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .single();
 
-  // If not found by slug, try by ID (for backwards compatibility)
-  if (!chain) {
-    const result = await supabase
+  if (slugData) {
+    chain = slugData;
+  } else {
+    // Try ID
+    const { data: idData } = await supabase
       .from('chains')
       .select('*')
       .eq('id', slugOrId)
-      .eq('workspace_id', workspace.id)
+      .eq('workspace_id', workspaceData.id)
       .single();
-    chain = result.data;
-    error = result.error;
+    chain = idData;
   }
 
-  if (!chain || error) {
+  if (!chain) {
     redirect(`/${workspaceSlug}/chains`);
+    return null;
   }
 
+  // Now we have a valid chain - fetch related data
+  const chainData = chain as any;
+  
   // Get all prompts for this workspace
   const { data: prompts } = await supabase
     .from('prompts')
     .select('id, name, description, variables')
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .order('name');
 
   // Get queries and connections for advanced chains
@@ -73,32 +101,24 @@ export default async function EditChainPage({
         type
       )
     `)
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .order('name');
 
   const { data: connections } = await supabase
     .from('database_connections')
     .select('id, name, type, read_only')
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .order('name');
-
-  // Detect if this is an advanced chain
-  const isAdvancedChain = chain.steps && Array.isArray(chain.steps) && 
-    chain.steps.some((step: any) => 
-      step.type && ['condition', 'loop', 'switch', 'api_call', 'database', 'code', 'approval', 'webhook'].includes(step.type)
-    );
 
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <ChainEditorClient
-          isAdvancedChain={isAdvancedChain}
-          workspaceId={workspace.id}
+          mode="edit"
+          workspaceId={workspaceData.id}
           workspaceSlug={workspaceSlug}
           availablePrompts={prompts || []}
-          availableQueries={queries || []}
-          availableConnections={connections || []}
-          existingChain={chain}
+          existingChain={chainData}
         />
       </div>
     </div>

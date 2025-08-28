@@ -17,6 +17,7 @@ export default async function WorkspaceLayout({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Get workspace details
@@ -32,13 +33,17 @@ export default async function WorkspaceLayout({
 
   if (!workspace) {
     redirect('/dashboard');
+    return null;
   }
+
+  // TypeScript workaround - we know workspace exists after the check
+  const workspaceData = workspace as any;
 
   // Get user's role in workspace
   const { data: membership } = await supabase
     .from('workspace_members')
     .select('role')
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .eq('user_id', user.id)
     .single();
 
@@ -47,7 +52,7 @@ export default async function WorkspaceLayout({
       <AppHeader />
       <div className="flex h-screen bg-gray-50 pt-14">
         <WorkspaceSidebarV3 
-          workspace={workspace} 
+          workspace={workspaceData} 
           membership={membership} 
           user={user} 
         />
@@ -62,8 +67,8 @@ export default async function WorkspaceLayout({
       
       {/* Tier Switcher for Development */}
       <TierSwitcher 
-        workspaceId={workspace.id} 
-        currentTier={workspace.plan || workspace.subscription_tier || 'free'} 
+        workspaceId={workspaceData.id} 
+        currentTier={workspaceData.plan || workspaceData.subscription_tier || 'free'} 
       />
     </>
   );

@@ -89,11 +89,12 @@ export default function EditPromptPageClean({
           .single();
         
         if (membership) {
-          setWorkspaceId(membership.workspace_id);
-          setUserRole(membership.role as Role);
-          setUserTier(membership.workspaces.subscription_tier || 'free');
+          const membershipData = membership as any;
+          setWorkspaceId(membershipData.workspace_id);
+          setUserRole(membershipData.role as Role);
+          setUserTier(membershipData.workspaces?.subscription_tier || 'free');
           
-          const canEdit = hasPermission(membership.role as Role, 'prompts.edit');
+          const canEdit = hasPermission(membershipData.role as Role, 'prompts.edit');
           setHasEditPermission(canEdit);
           
           if (!canEdit) {
@@ -105,21 +106,22 @@ export default function EditPromptPageClean({
             .from('prompts')
             .select('*')
             .eq('slug', id)
-            .eq('workspace_id', membership.workspace_id)
+            .eq('workspace_id', membershipData.workspace_id)
             .single();
           
           if (prompt) {
-            setOriginalPrompt(prompt);
-            setName(prompt.name || '');
-            setSlug(prompt.slug || '');
-            setDescription(prompt.description || '');
-            setShortcode(prompt.shortcode || '');
-            setContent(prompt.content || '');
+            const promptData = prompt as any;
+            setOriginalPrompt(promptData);
+            setName(promptData.name || '');
+            setSlug(promptData.slug || '');
+            setDescription(promptData.description || '');
+            setShortcode(promptData.shortcode || '');
+            setContent(promptData.content || '');
             // Set visibility based on saved state or tier default
-            const tier = membership.workspaces.subscription_tier || 'free';
-            setIsPublic(prompt.is_shared === true || prompt.visibility === 'public' || (tier === 'free' && prompt.is_shared !== false));
-            setModel(prompt.model || 'gpt-4');
-            setTemperature(prompt.temperature !== undefined ? prompt.temperature : 7);
+            const tier = membershipData.workspaces?.subscription_tier || 'free';
+            setIsPublic(promptData.is_shared === true || promptData.visibility === 'public' || (tier === 'free' && promptData.is_shared !== false));
+            setModel(promptData.model || 'gpt-4');
+            setTemperature(promptData.temperature !== undefined ? promptData.temperature : 7);
             
             // Fetch related data
             try {
@@ -127,30 +129,30 @@ export default function EditPromptPageClean({
                 supabase
                   .from('folders')
                   .select('id, name')
-                  .eq('workspace_id', membership.workspace_id),
+                  .eq('workspace_id', membershipData.workspace_id),
                 supabase
                   .from('tags')
                   .select('id, name, color')
-                  .eq('workspace_id', membership.workspace_id),
-                prompt.folder_id ? supabase
+                  .eq('workspace_id', membershipData.workspace_id),
+                promptData.folder_id ? supabase
                   .from('folders')
                   .select('id, name')
-                  .eq('id', prompt.folder_id)
+                  .eq('id', promptData.folder_id)
                   .single() : Promise.resolve({ data: null, error: null }),
                 supabase
                   .from('prompt_tags')
                   .select('tag_id, tags(id, name, color)')
-                  .eq('prompt_id', prompt.id)
-              ]);
+                  .eq('prompt_id', promptData.id)
+              ]) as any[];
             
-              setAvailableFolders(foldersRes.data || []);
-              setAvailableTags(tagsRes.data || []);
+              setAvailableFolders(foldersRes?.data || []);
+              setAvailableTags(tagsRes?.data || []);
               
-              if (folderRes.data) {
+              if (folderRes?.data) {
                 setFolder(folderRes.data);
               }
               
-              if (promptTagsRes.data) {
+              if (promptTagsRes?.data) {
                 const tagsData = promptTagsRes.data
                   .map((pt: any) => pt.tags)
                   .filter((t: any) => t !== null);
@@ -299,7 +301,7 @@ export default function EditPromptPageClean({
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tags')
         .insert({ 
           name: tagSearchQuery.trim(), 
@@ -323,7 +325,7 @@ export default function EditPromptPageClean({
     if (!newFolderName.trim() || !workspaceId) return;
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('folders')
         .insert({ 
           name: newFolderName, 
@@ -394,10 +396,10 @@ export default function EditPromptPageClean({
 
     // Check if slug is unique (only if changed)
     if (formattedSlug !== originalPrompt.slug) {
-      const { data: existingPrompt } = await supabase
+      const { data: existingPrompt } = await (supabase as any)
         .from('prompts')
         .select('id')
-        .eq('workspace_id', workspaceId)
+        .eq('workspace_id', workspaceId as string)
         .eq('slug', formattedSlug)
         .single();
 

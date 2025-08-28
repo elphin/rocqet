@@ -170,60 +170,25 @@ export function FoldersClient({ workspace, folders, userRole }: FoldersClientPro
   };
 
   const handleDeleteFolder = async (folderId: string, folderName: string) => {
-    // Show confirmation toast
-    toast.custom((t) => (
-      <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-lg border border-neutral-200 dark:border-neutral-800 p-4 max-w-md">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0">
-            <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5" />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-gray-100">
-              Delete folder "{folderName}"?
-            </h3>
-            <p className="text-xs text-neutral-600 dark:text-gray-400 mt-1">
-              Prompts in this folder will not be deleted.
-            </p>
-            <div className="flex gap-2 mt-3">
-              <Button
-                size="sm"
-                onClick={async () => {
-                  toast.dismiss(t.id);
-                  try {
-                    const response = await fetch(`/api/folders/${folderId}`, {
-                      method: 'DELETE'
-                    });
+    // Use regular confirm dialog to avoid type issues with toast.custom
+    const confirmed = window.confirm(`Delete folder "${folderName}"? Prompts in this folder will not be deleted.`);
+    
+    if (!confirmed) return;
+    
+    try {
+      const response = await fetch(`/api/folders/${folderId}`, {
+        method: 'DELETE'
+      });
 
-                    if (!response.ok) throw new Error('Failed to delete folder');
+      if (!response.ok) throw new Error('Failed to delete folder');
 
-                    // Remove the folder from the list immediately
-                    setFolderList(folderList.filter(folder => folder.id !== folderId));
+      // Remove the folder from the list immediately
+      setFolderList(folderList.filter(folder => folder.id !== folderId));
 
-                    toast.success('Folder deleted successfully');
-                  } catch (error) {
-                    toast.error('Failed to delete folder');
-                  }
-                }}
-                className="h-7 px-3 text-xs bg-red-600 hover:bg-red-700 text-white"
-              >
-                Delete
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => toast.dismiss(t.id)}
-                className="h-7 px-3 text-xs border-neutral-200 dark:border-neutral-700"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    ), {
-      duration: 60000, // Keep it open for 60 seconds or until dismissed
-      position: 'top-center',
-    });
+      toast.success('Folder deleted successfully');
+    } catch (error) {
+      toast.error('Failed to delete folder');
+    }
   };
 
   const startEdit = (folder: Folder) => {

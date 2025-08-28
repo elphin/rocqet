@@ -11,6 +11,7 @@ export default async function Dashboard() {
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Check if user has any workspaces
@@ -31,6 +32,7 @@ export default async function Dashboard() {
 
   if (!workspaceMembers || workspaceMembers.length === 0) {
     redirect('/dashboard/workspace-setup');
+    return null;
   }
 
   // Get the current workspace (use most recently joined)
@@ -38,6 +40,7 @@ export default async function Dashboard() {
   
   // Redirect to workspace dashboard instead of showing this generic dashboard
   redirect(`/${currentWorkspace.slug}/prompts`);
+  return null;
 
   // The code below won't run, but keeping for reference
   return (

@@ -14,6 +14,7 @@ export default async function FoldersPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Get workspace
@@ -34,13 +35,17 @@ export default async function FoldersPage({
 
   if (!membership) {
     redirect('/');
+    return null;
   }
+
+  // TypeScript workaround - we know membership exists after the check
+  const membershipData = membership as any;
 
   // Get folders
   const { data: folders } = await supabase
     .from('folders')
     .select('*')
-    .eq('workspace_id', membership.workspace_id)
+    .eq('workspace_id', membershipData.workspace_id)
     .order('sort_order', { ascending: true, nullsFirst: false })
     .order('name', { ascending: true });
 
@@ -48,7 +53,7 @@ export default async function FoldersPage({
   const { data: prompts } = await supabase
     .from('prompts')
     .select('folder_id')
-    .eq('workspace_id', membership.workspace_id);
+    .eq('workspace_id', membershipData.workspace_id);
 
   const folderCounts = prompts?.reduce((acc: any, prompt: any) => {
     if (prompt.folder_id) {
@@ -57,16 +62,16 @@ export default async function FoldersPage({
     return acc;
   }, {});
 
-  const foldersWithCounts = folders?.map(folder => ({
+  const foldersWithCounts = folders?.map((folder: any) => ({
     ...folder,
     prompt_count: folderCounts?.[folder.id] || 0
   })) || [];
 
   return (
     <FoldersClient 
-      workspace={membership.workspaces}
+      workspace={membershipData.workspaces}
       folders={foldersWithCounts}
-      userRole={membership.role}
+      userRole={membershipData.role}
     />
   );
 }

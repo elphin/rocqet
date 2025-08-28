@@ -15,6 +15,7 @@ export default async function NewAdvancedChainPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -22,6 +23,7 @@ export default async function NewAdvancedChainPage({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   const workspace = membership.workspaces;
@@ -64,7 +66,7 @@ export default async function NewAdvancedChainPage({
       workspaceId={workspace.id}
       workspaceSlug={workspaceSlug}
       availablePrompts={prompts || []}
-      availableQueries={queries || []}
+      availableQueries={(queries as any) || []}
       availableConnections={connections || []}
       mode="create"
     />

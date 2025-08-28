@@ -9,6 +9,7 @@ export default async function NewWorkspacePage() {
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Check if user already has workspaces

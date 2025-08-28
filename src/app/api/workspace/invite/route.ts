@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { nanoid } from 'nanoid';
+import { Resend } from 'resend';
 
 // Only initialize Resend if API key is available
-let resend: any = null;
+let resend: Resend | null = null;
 try {
   if (process.env.RESEND_API_KEY) {
-    const { Resend } = require('resend');
     resend = new Resend(process.env.RESEND_API_KEY);
   }
 } catch (error) {

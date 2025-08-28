@@ -14,6 +14,7 @@ export default async function TemplatesLayout({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Get user's workspaces to determine which one to show in sidebar
@@ -24,6 +25,7 @@ export default async function TemplatesLayout({
 
   if (!memberships || memberships.length === 0) {
     redirect('/onboarding');
+    return null;
   }
 
   // Use the first workspace or the personal workspace for sidebar context

@@ -8,6 +8,7 @@ export default async function InvitesPage() {
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Get pending invites for this user

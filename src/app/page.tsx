@@ -9,6 +9,7 @@ export default async function Home() {
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Get user's workspaces
@@ -17,9 +18,11 @@ export default async function Home() {
   if (workspaces.length === 0) {
     // No workspace yet, create one
     redirect('/onboarding');
+    return null;
   }
   
   // Redirect to most recently used workspace
   const defaultWorkspace = workspaces[0];
   redirect(`/${defaultWorkspace.slug}/dashboard`);
+  return null;
 }

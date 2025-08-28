@@ -384,19 +384,19 @@ export default function ButtonDemoPage() {
             <div className="bg-neutral-900 dark:bg-black text-white rounded-lg p-6 font-mono text-sm">
               <div className="space-y-4">
                 <div>
-                  <span className="text-green-400">// Hero CTA Button</span><br />
+                  <span className="text-green-400">{'// Hero CTA Button'}</span><br />
                   <span className="text-blue-400">&lt;Button</span> <span className="text-yellow-400">variant=</span><span className="text-green-300">"primaryCta"</span> <span className="text-yellow-400">size=</span><span className="text-green-300">"default"</span><span className="text-blue-400">&gt;</span><br />
                   <span className="ml-4">New Prompt</span><br />
                   <span className="text-blue-400">&lt;/Button&gt;</span>
                 </div>
                 <div>
-                  <span className="text-green-400">// Success Action</span><br />
+                  <span className="text-green-400">{'// Success Action'}</span><br />
                   <span className="text-blue-400">&lt;Button</span> <span className="text-yellow-400">variant=</span><span className="text-green-300">"success"</span> <span className="text-yellow-400">onClick=</span><span className="text-orange-300">{'{runPrompt}'}</span><span className="text-blue-400">&gt;</span><br />
                   <span className="ml-4">Run Prompt</span><br />
                   <span className="text-blue-400">&lt;/Button&gt;</span>
                 </div>
                 <div>
-                  <span className="text-green-400">// Destructive Action</span><br />
+                  <span className="text-green-400">{'// Destructive Action'}</span><br />
                   <span className="text-blue-400">&lt;Button</span> <span className="text-yellow-400">variant=</span><span className="text-green-300">"destructive"</span> <span className="text-yellow-400">onClick=</span><span className="text-orange-300">{'{deletePrompt}'}</span><span className="text-blue-400">&gt;</span><br />
                   <span className="ml-4">Delete</span><br />
                   <span className="text-blue-400">&lt;/Button&gt;</span>

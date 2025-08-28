@@ -14,6 +14,7 @@ export default async function NewPromptPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -21,10 +22,12 @@ export default async function NewPromptPage({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   const workspace = membership.workspaces;
 
   // Redirect to the direct new prompt page (server-rendered for faster loading)
   redirect(`/${workspaceSlug}/prompts/new/direct`);
+  return null;
 }

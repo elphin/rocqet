@@ -16,6 +16,7 @@ export default async function ChainsPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -23,12 +24,15 @@ export default async function ChainsPage({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   const workspace = membership.workspaces;
+  // TypeScript workaround - we know workspace exists after membership validation
+  const workspaceData = workspace as any;
 
   // Check if workspace has pro or team tier - chains are not available on starter tier
-  if (!['pro', 'team', 'enterprise'].includes(workspace.subscription_tier)) {
+  if (!['pro', 'team', 'enterprise'].includes(workspaceData.subscription_tier)) {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
         <div className="max-w-4xl mx-auto px-6 py-16">
@@ -60,7 +64,7 @@ export default async function ChainsPage({
   const { data: chains } = await supabase
     .from('chains')
     .select('*')
-    .eq('workspace_id', workspace.id)
+    .eq('workspace_id', workspaceData.id)
     .order('updated_at', { ascending: false });
 
   return (

@@ -14,6 +14,7 @@ export default async function AiProvidersPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Get user's AI keys

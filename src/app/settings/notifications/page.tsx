@@ -8,6 +8,7 @@ export default async function NotificationSettingsPage() {
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   return (

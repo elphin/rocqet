@@ -62,6 +62,7 @@ import {
   Info,
   ArrowRight,
   ChevronRight,
+  Globe,
 } from 'lucide-react';
 import { ChainStep, ChainExecution } from '@/types/chain-types';
 import { ChainExecutionEngine, ExecutionOptions } from '@/lib/chain-execution-engine';

@@ -15,6 +15,7 @@ export default async function ActivityPage({
   
   if (!user) {
     redirect('/auth/signin');
+    return null;
   }
 
   // Validate workspace access
@@ -22,6 +23,7 @@ export default async function ActivityPage({
   
   if (!membership) {
     redirect('/');
+    return null;
   }
 
   const workspace = membership.workspaces;
