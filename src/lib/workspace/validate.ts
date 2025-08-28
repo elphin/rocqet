@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
+import { WorkspaceMembership } from '@/types/workspace';
 
-export async function validateWorkspaceAccess(workspaceSlug: string, userId: string) {
+export async function validateWorkspaceAccess(workspaceSlug: string, userId: string): Promise<WorkspaceMembership | null> {
   const supabase = await createClient();
   
   // Check if user has access to this workspace
@@ -25,7 +26,7 @@ export async function validateWorkspaceAccess(workspaceSlug: string, userId: str
     return null;
   }
 
-  return memberships && memberships.length > 0 ? memberships[0] : null;
+  return memberships && memberships.length > 0 ? memberships[0] as WorkspaceMembership : null;
 }
 
 export async function getUserWorkspaces(userId: string) {

@@ -3,9 +3,10 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const supabase = await createClient();
     
     // Get user
@@ -49,7 +50,7 @@ export async function POST(
     const { data: currentPrompt, error: promptError } = await supabase
       .from('prompts')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (promptError || !currentPrompt) {
@@ -129,7 +130,7 @@ export async function POST(
     const { data: updatedPrompt, error: updateError } = await supabase
       .from('prompts')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
 

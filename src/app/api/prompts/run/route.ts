@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import OpenAI from 'openai';
+import { OpenAIClient } from '@/lib/ai/openai-client';
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import Groq from 'groq-sdk';
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     try {
       switch (provider) {
         case 'openai': {
-          const openai = new OpenAI({ apiKey: finalApiKey });
+          const openai = new OpenAIClient({ apiKey: finalApiKey });
           const completion = await openai.chat.completions.create({
             model: model,
             messages: [{ role: 'user', content: prompt }],

@@ -3,9 +3,10 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    const { slug } = await params;
     const supabase = await createClient();
     
     // Get user
@@ -22,7 +23,7 @@ export async function GET(
       .eq('user_id', user.id);
     
     const results = {
-      searchingFor: params.slug,
+      searchingFor: slug,
       user: user.email,
       workspaces: memberships,
       bySlug: null as any,
@@ -35,7 +36,7 @@ export async function GET(
       const { data: bySlug } = await supabase
         .from('prompts')
         .select('id, name, slug, workspace_id')
-        .eq('slug', params.slug)
+        .eq('slug', slug)
         .in('workspace_id', memberships.map(m => m.workspace_id));
       
       results.bySlug = bySlug;
@@ -44,7 +45,7 @@ export async function GET(
       const { data: byId } = await supabase
         .from('prompts')
         .select('id, name, slug, workspace_id')
-        .eq('id', params.slug)
+        .eq('id', slug)
         .in('workspace_id', memberships.map(m => m.workspace_id));
       
       results.byId = byId;

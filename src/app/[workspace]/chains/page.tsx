@@ -27,8 +27,8 @@ export default async function ChainsPage({
 
   const workspace = membership.workspaces;
 
-  // Check if workspace has pro or business tier - chains are not available on free tier
-  if (!['pro', 'business'].includes(workspace.subscription_tier)) {
+  // Check if workspace has pro or team tier - chains are not available on starter tier
+  if (!['pro', 'team', 'enterprise'].includes(workspace.subscription_tier)) {
     return (
       <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
         <div className="max-w-4xl mx-auto px-6 py-16">
@@ -42,7 +42,7 @@ export default async function ChainsPage({
               Prompt Chains
             </h2>
             <p className="text-neutral-600 dark:text-neutral-400 mb-8 max-w-md mx-auto">
-              Build powerful multi-step AI workflows with prompt chains. This feature is available for Pro and Business workspaces.
+              Build powerful multi-step AI workflows with prompt chains. This feature is available for Pro, Team, and Enterprise workspaces.
             </p>
             <Link
               href={`/${workspaceSlug}/settings/billing`}

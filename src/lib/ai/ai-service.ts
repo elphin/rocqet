@@ -3,7 +3,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server';
-import OpenAI from 'openai';
+import { OpenAIClient } from '@/lib/ai/openai-client';
 
 export interface AIProvider {
   type: 'openai' | 'anthropic' | 'claude';
@@ -34,14 +34,14 @@ export interface PromptExecutionResult {
 }
 
 export class AIService {
-  private openaiClient: OpenAI | null = null;
+  private openaiClient: OpenAIClient | null = null;
 
   /**
    * Initialize AI clients with API keys
    */
   private async initializeClients(provider: AIProvider) {
     if (provider.type === 'openai' && !this.openaiClient) {
-      this.openaiClient = new OpenAI({
+      this.openaiClient = new OpenAIClient({
         apiKey: provider.apiKey,
       });
     }

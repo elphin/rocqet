@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import OpenAI from 'openai';
+import { OpenAIClient } from '@/lib/ai/openai-client';
 import Anthropic from '@anthropic-ai/sdk';
 
 interface ChainStep {
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize AI clients
-    const openai = provider === 'openai' ? new OpenAI({ apiKey }) : null;
+    const openai = provider === 'openai' ? new OpenAIClient({ apiKey }) : null;
     const anthropic = provider === 'anthropic' ? new Anthropic({ apiKey }) : null;
 
     // Create execution record

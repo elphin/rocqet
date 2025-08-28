@@ -14,7 +14,7 @@ import {
   RetryConfig,
   ErrorHandling
 } from '@/types/chain-types';
-import OpenAI from 'openai';
+import { OpenAIClient } from '@/lib/ai/openai-client';
 import Anthropic from '@anthropic-ai/sdk';
 
 export interface ExecutionOptions {
@@ -29,7 +29,7 @@ export interface ExecutionOptions {
 }
 
 export class ChainExecutionEngine {
-  private openai?: OpenAI;
+  private openai?: OpenAIClient;
   private anthropic?: Anthropic;
   private execution: ChainExecution;
   private options: ExecutionOptions;
@@ -47,7 +47,7 @@ export class ChainExecutionEngine {
     // Initialize AI clients if provided
     if (options.apiKey) {
       if (options.provider === 'openai') {
-        this.openai = new OpenAI({ apiKey: options.apiKey });
+        this.openai = new OpenAIClient({ apiKey: options.apiKey });
       } else if (options.provider === 'anthropic') {
         this.anthropic = new Anthropic({ apiKey: options.apiKey });
       }
